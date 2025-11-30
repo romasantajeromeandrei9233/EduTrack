@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EduTrack">
 
+        <!-- Main Activity (Login/Splash) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -24,6 +25,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Teacher Dashboard -->
+        <activity
+            android:name=".ui.teacher.TeacherDashboardActivity"
+            android:exported="false" />
+
+        <!-- Parent Dashboard -->
+        <activity
+            android:name=".ui.parent.ParentDashboardActivity"
+            android:exported="false" />
 
         <!-- FCM Service -->
         <service

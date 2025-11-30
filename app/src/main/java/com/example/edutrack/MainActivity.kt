@@ -1,28 +1,62 @@
 package com.example.edutrack
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.lifecycleScope
+import com.example.edutrack.model.UserRole
+import com.example.edutrack.repository.AuthRepository
+import com.example.edutrack.ui.login.LoginFragment
+import com.example.edutrack.ui.parent.ParentDashboardActivity
+import com.example.edutrack.ui.teacher.TeacherDashboardActivity
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+    private val authRepository = AuthRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = FirebaseAuth.getInstance()
+        checkAuthState()
+    }
 
-        // Check if user is signed in
-        val currentUser = auth.currentUser
+    private fun checkAuthState() {
+        val currentUser = authRepository.currentUser
+
         if (currentUser != null) {
-            // User is signed in - navigate based on role (will implement in M1)
-            // For now, just log
-            android.util.Log.d("MainActivity", "User signed in: ${currentUser.email}")
+            // User is logged in, check role and navigate
+            lifecycleScope.launch {
+                val roleResult = authRepository.getUserRole(currentUser.uid)
+                roleResult.fold(
+                    onSuccess = { role ->
+                        navigateBasedOnRole(role)
+                    },
+                    onFailure = {
+                        // Error getting role, show login
+                        showLoginScreen()
+                    }
+                )
+            }
         } else {
-            // No user signed in - show login (will implement in M1)
-            android.util.Log.d("MainActivity", "No user signed in")
+            // No user, show login
+            showLoginScreen()
         }
+    }
+
+    private fun showLoginScreen() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, LoginFragment())
+            .commit()
+    }
+
+    private fun navigateBasedOnRole(role: UserRole) {
+        val intent = when (role) {
+            UserRole.TEACHER -> Intent(this, TeacherDashboardActivity::class.java)
+            UserRole.PARENT -> Intent(this, ParentDashboardActivity::class.java)
+        }
+        startActivity(intent)
+        finish()
     }
 }

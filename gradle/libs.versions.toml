@@ -15,6 +15,7 @@ navigationFragment = "2.8.5"
 workManager = "2.10.0"
 composeBom = "2024.12.01"
 composeActivity = "1.9.3"
+composeCompiler = "1.5.14"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,4 +55,4 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

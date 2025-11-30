@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Attendance Status Colors -->
+    <color name="status_present">#4CAF50</color>      <!-- Green -->
+    <color name="status_late">#FF9800</color>         <!-- Orange -->
+    <color name="status_absent">#F44336</color>       <!-- Red -->
+    <color name="status_excused">#2196F3</color>      <!-- Blue -->
+
+    <!-- Status Colors (Light) -->
+    <color name="status_present_light">#E8F5E9</color>
+    <color name="status_late_light">#FFF3E0</color>
+    <color name="status_absent_light">#FFEBEE</color>
+    <color name="status_excused_light">#E3F2FD</color>
 </resources>

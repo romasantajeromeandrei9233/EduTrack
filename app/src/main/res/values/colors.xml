@@ -3,6 +3,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Primary Colors -->
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent">#03DAC5</color>
+
+    <!-- Background Colors -->
+    <color name="background_main">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+
     <!-- Attendance Status Colors -->
     <color name="status_present">#4CAF50</color>      <!-- Green -->
     <color name="status_late">#FF9800</color>         <!-- Orange -->

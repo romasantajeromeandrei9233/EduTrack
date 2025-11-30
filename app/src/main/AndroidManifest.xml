@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Internet permission for Firebase -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Notification permission for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
@@ -16,7 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EduTrack">
 
-        <!-- Main Activity (Login/Splash) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -26,17 +22,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Teacher Dashboard -->
         <activity
             android:name=".ui.teacher.TeacherDashboardActivity"
             android:exported="false" />
 
-        <!-- Parent Dashboard -->
+        <activity
+            android:name=".ui.teacher.ClassDetailActivity"
+            android:exported="false" />
+
         <activity
             android:name=".ui.parent.ParentDashboardActivity"
             android:exported="false" />
 
-        <!-- FCM Service -->
         <service
             android:name=".firebase.MessagingService"
             android:exported="false">

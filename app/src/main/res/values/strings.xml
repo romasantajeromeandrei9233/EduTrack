@@ -1,9 +1,50 @@
 <resources>
     <string name="app_name">EduTrack</string>
     <string name="background_image">Background Image</string>
+
+    <!-- Auth -->
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="signup">Sign Up</string>
     <string name="name">Name</string>
+
+    <!-- Common -->
+    <string name="welcome">Welcome</string>
+    <string name="profile">Profile</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="students">Students</string>
+    <string name="classes">Classes</string>
+
+    <!-- Teacher -->
+    <string name="teacher_dashboard">Teacher\'s Dashboard</string>
+    <string name="mark_attendance">Mark Attendance</string>
+    <string name="view_class">View Class</string>
+    <string name="add_class">Add Class</string>
+    <string name="add_student">Add Student</string>
+
+    <!-- Attendance -->
+    <string name="present">Present</string>
+    <string name="late">Late</string>
+    <string name="absent">Absent</string>
+    <string name="excused">Excused</string>
+    <string name="save_attendance">Save Attendance</string>
+
+    <!-- Parent -->
+    <string name="parent_dashboard">Parent\'s Dashboard</string>
+    <string name="link_child">Link Child</string>
+    <string name="excuse_student">Excuse Student</string>
+    <string name="write_excuse_letter">Write Excuse Letter</string>
+    <string name="submit_excuse">Submit Excuse</string>
+    <string name="attendance_history">Attendance History</string>
+
+    <!-- Student Info -->
+    <string name="student_name">Student Name</string>
+    <string name="class_name">Class Name</string>
+    <string name="grade">Grade</string>
+    <string name="status">Status</string>
+    <string name="parent_name">Parent Name</string>
+    <string name="parent_email">Parent Email</string>
+    <string name="contact_no">Contact No.</string>
+    <string name="address">Address</string>
 </resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Status Indicator -->
+        <View
+            android:id="@+id/statusIndicator"
+            android:layout_width="8dp"
+            android:layout_height="0dp"
+            android:background="@color/status_present"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/tvStudentName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Student Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/statusIndicator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/chipGroup" />
+
+        <!-- Status Chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPresent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="P"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/status_present"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipLate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="L"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/status_late"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAbsent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="A"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/status_absent"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipExcused"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="E"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/status_excused"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

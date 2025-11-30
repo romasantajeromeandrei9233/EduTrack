@@ -1,4 +1,8 @@
 package com.example.edutrack.model
 
-class Teacher {
-}
+data class Teacher(
+    val teacherId: String = "",
+    val name: String = "",
+    val email: String = "",
+    val classList: List<String> = emptyList() // List of class IDs
+)

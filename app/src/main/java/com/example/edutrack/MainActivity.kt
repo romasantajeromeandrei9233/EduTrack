@@ -1,20 +1,28 @@
 package com.example.edutrack
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        auth = FirebaseAuth.getInstance()
+
+        // Check if user is signed in
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // User is signed in - navigate based on role (will implement in M1)
+            // For now, just log
+            android.util.Log.d("MainActivity", "User signed in: ${currentUser.email}")
+        } else {
+            // No user signed in - show login (will implement in M1)
+            android.util.Log.d("MainActivity", "No user signed in")
         }
     }
 }

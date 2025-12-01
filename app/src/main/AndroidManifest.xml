@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
 
+        <!-- Teacher Activities -->
         <activity
             android:name=".ui.teacher.TeacherDashboardActivity"
             android:exported="false" />
@@ -30,10 +31,20 @@
             android:name=".ui.teacher.ClassDetailActivity"
             android:exported="false" />
 
+        <!-- Parent Activities -->
         <activity
             android:name=".ui.parent.ParentDashboardActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.parent.StudentAttendanceActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.parent.ExcuseLetterActivity"
+            android:exported="false" />
+
+        <!-- FCM Service -->
         <service
             android:name=".firebase.MessagingService"
             android:exported="false">

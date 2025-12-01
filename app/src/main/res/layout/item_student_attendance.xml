@@ -2,46 +2,51 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/card_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Status Indicator -->
+        <!-- Status Color Indicator Bar -->
         <View
             android:id="@+id/statusIndicator"
-            android:layout_width="8dp"
+            android:layout_width="4dp"
             android:layout_height="0dp"
             android:background="@color/status_present"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
+        <!-- Student Name -->
         <TextView
             android:id="@+id/tvStudentName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Student Name"
+            android:layout_width="86dp"
+            android:layout_height="47dp"
+            android:layout_marginStart="12dp"
+            android:text="Student-name-1"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toStartOf="@id/chipGroup"
             app:layout_constraintStart_toEndOf="@id/statusIndicator"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/chipGroup" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Status Chips -->
+        <!-- Status Selection Chips -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:singleSelection="true"
+            app:chipSpacingHorizontal="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
@@ -50,36 +55,44 @@
                 android:id="@+id/chipPresent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="P"
+                android:text="Present"
+                android:textSize="12sp"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/status_present"
+                app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipLate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="L"
+                android:text="Late"
+                android:textSize="12sp"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/status_late"
+                app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAbsent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="A"
+                android:text="Absent"
+                android:textSize="12sp"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/status_absent"
+                app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipExcused"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="E"
+                android:text="Excuse"
+                android:textSize="12sp"
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/status_excused"
+                app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
         </com.google.android.material.chip.ChipGroup>

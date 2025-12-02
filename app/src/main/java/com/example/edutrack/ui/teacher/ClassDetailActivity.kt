@@ -89,6 +89,12 @@ class ClassDetailActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Reload student data when returning from student detail
+        loadStudents()
+    }
+
     private fun setupClickListeners() {
         findViewById<android.view.View>(R.id.btnBack).setOnClickListener {
             finish()

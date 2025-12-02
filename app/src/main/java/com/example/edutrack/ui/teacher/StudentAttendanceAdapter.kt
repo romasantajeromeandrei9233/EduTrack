@@ -17,7 +17,8 @@ data class StudentAttendanceItem(
 )
 
 class StudentAttendanceAdapter(
-    private var students: List<StudentAttendanceItem>
+    private var students: List<StudentAttendanceItem>,
+    var onStudentLongClick: ((Student) -> Unit)? = null
 ) : RecyclerView.Adapter<StudentAttendanceAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -71,6 +72,12 @@ class StudentAttendanceAdapter(
                 item.status = newStatus
                 notifyItemChanged(position)
             }
+        }
+
+        // Add long-click to open student detail
+        holder.itemView.setOnLongClickListener {
+            onStudentLongClick?.invoke(item.student)
+            true
         }
     }
 

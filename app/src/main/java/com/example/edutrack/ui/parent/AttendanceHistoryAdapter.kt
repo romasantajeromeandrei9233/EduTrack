@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.edutrack.R
 import com.example.edutrack.model.Attendance
@@ -35,12 +34,17 @@ class AttendanceHistoryAdapter(
         val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         holder.tvDate.text = dateFormat.format(attendance.date.toDate())
 
-        // Set status
-        holder.tvStatus.text = AttendanceUtils.getStatusText(attendance.status)
+        // Set status text
+        holder.tvStatus.text = AttendanceUtils.getStatusText(attendance.status).uppercase()
 
-        // Set status color
-        val statusColor = AttendanceUtils.getStatusColor(holder.itemView.context, attendance.status)
-        holder.tvStatus.setBackgroundColor(statusColor)
+        // Set background based on status
+        val backgroundRes = when (attendance.status) {
+            AttendanceStatus.PRESENT -> R.drawable.status_badge_present
+            AttendanceStatus.LATE -> R.drawable.status_badge_late
+            AttendanceStatus.ABSENT -> R.drawable.status_badge_absent
+            AttendanceStatus.EXCUSED -> R.drawable.status_badge_excused
+        }
+        holder.tvStatus.setBackgroundResource(backgroundRes)
     }
 
     override fun getItemCount(): Int = attendanceList.size

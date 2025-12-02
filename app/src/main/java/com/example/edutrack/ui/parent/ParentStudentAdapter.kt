@@ -31,8 +31,11 @@ class ParentStudentAdapter(
         val student = students[position]
 
         holder.tvStudentName.text = student.name
-        holder.tvClassName.text = "Grade ${student.grade}"
+        holder.tvClassName.text = student.classId
+
+        // Default status - will be updated with actual attendance data in future
         holder.tvStatus.text = "View Status"
+        holder.tvStatus.setBackgroundResource(R.drawable.status_badge_present)
 
         holder.btnViewAttendance.setOnClickListener {
             onStudentClick(student)

@@ -1,5 +1,6 @@
 package com.example.edutrack.ui.teacher
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -73,8 +74,19 @@ class ClassDetailActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         studentAdapter = StudentAttendanceAdapter(emptyList())
+        studentAdapter.onStudentLongClick = { student ->
+            openStudentDetail(student)
+        }
         rvStudents.layoutManager = LinearLayoutManager(this)
         rvStudents.adapter = studentAdapter
+    }
+
+    private fun openStudentDetail(student: Student) {
+        val intent = Intent(this, StudentDetailActivity::class.java)
+        intent.putExtra("STUDENT_ID", student.studentId)
+        intent.putExtra("STUDENT_NAME", student.name)
+        intent.putExtra("CLASS_ID", classId)
+        startActivity(intent)
     }
 
     private fun setupClickListeners() {
@@ -118,8 +130,12 @@ class ClassDetailActivity : AppCompatActivity() {
 
     private fun updateAttendanceStats() {
         val attendanceData = studentAdapter.getAttendanceData()
-        val presentCount = attendanceData.count { it.status == AttendanceStatus.PRESENT }
-        val absentCount = attendanceData.count { it.status == AttendanceStatus.ABSENT }
+        val presentCount = attendanceData.count {
+            it.status == AttendanceStatus.PRESENT || it.status == AttendanceStatus.LATE
+        }
+        val absentCount = attendanceData.count {
+            it.status == AttendanceStatus.ABSENT
+        }
 
         tvPresentCount.text = presentCount.toString()
         tvAbsentCount.text = absentCount.toString()

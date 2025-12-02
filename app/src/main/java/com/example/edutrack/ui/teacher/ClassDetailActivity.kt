@@ -14,6 +14,8 @@ import com.example.edutrack.model.AttendanceStatus
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.AttendanceRepository
 import com.example.edutrack.repository.StudentRepository
+import com.example.edutrack.utils.FCMNotificationSender
+import com.example.edutrack.utils.AttendanceUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.Timestamp
@@ -156,6 +158,10 @@ class ClassDetailActivity : AppCompatActivity() {
             return
         }
 
+        // Show loading
+        btnSaveAttendance.isEnabled = false
+        btnSaveAttendance.text = "Saving..."
+
         CoroutineScope(Dispatchers.IO).launch {
             val attendanceList = attendanceData.map { item ->
                 Attendance(
@@ -169,25 +175,45 @@ class ClassDetailActivity : AppCompatActivity() {
 
             val result = attendanceRepository.markAttendanceBatch(attendanceList)
 
-            withContext(Dispatchers.Main) {
-                result.fold(
-                    onSuccess = {
+            result.fold(
+                onSuccess = {
+                    // Send notifications to parents
+                    attendanceData.forEach { item ->
+                        CoroutineScope(Dispatchers.IO).launch {
+                            FCMNotificationSender.sendAttendanceNotification(
+                                studentId = item.student.studentId,
+                                studentName = item.student.name,
+                                status = AttendanceUtils.getStatusText(item.status),
+                                date = Date()
+                            )
+                        }
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        btnSaveAttendance.isEnabled = true
+                        btnSaveAttendance.text = "Save Attendance"
+
                         Toast.makeText(
                             this@ClassDetailActivity,
-                            "Attendance saved successfully!",
+                            "Attendance saved & notifications sent!",
                             Toast.LENGTH_SHORT
                         ).show()
                         updateAttendanceStats()
-                    },
-                    onFailure = { exception ->
+                    }
+                },
+                onFailure = { exception ->
+                    withContext(Dispatchers.Main) {
+                        btnSaveAttendance.isEnabled = true
+                        btnSaveAttendance.text = "Save Attendance"
+
                         Toast.makeText(
                             this@ClassDetailActivity,
                             "Failed to save: ${exception.message}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
-                )
-            }
+                }
+            )
         }
     }
 

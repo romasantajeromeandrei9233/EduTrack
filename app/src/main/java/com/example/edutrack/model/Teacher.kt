@@ -4,5 +4,6 @@ data class Teacher(
     val teacherId: String = "",
     val name: String = "",
     val email: String = "",
-    val classList: List<String> = emptyList() // List of class IDs
+    val classList: List<String> = emptyList(),
+    val fcmToken: String = ""
 )

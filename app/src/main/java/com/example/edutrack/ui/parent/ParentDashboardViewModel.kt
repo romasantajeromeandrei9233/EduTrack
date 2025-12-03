@@ -34,6 +34,7 @@ class ParentDashboardViewModel : ViewModel() {
     init {
         loadParentData()
         loadLinkedStudents()
+        registerFCMToken()
     }
 
     private fun loadParentData() {
@@ -116,12 +117,5 @@ class ParentDashboardViewModel : ViewModel() {
                 android.util.Log.e("FCM", "Failed to save token: ${e.message}")
             }
         }
-    }
-
-    // Call this in the init block
-    init {
-        loadParentData()
-        loadLinkedStudents()
-        registerFCMToken() // Add this line
     }
 }

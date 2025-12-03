@@ -9,6 +9,7 @@ import com.example.edutrack.model.Teacher
 import com.example.edutrack.repository.ClassRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -31,9 +32,13 @@ class TeacherDashboardViewModel : ViewModel() {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    // FIX: Add Firestore listener for real-time updates
+    private var classesListener: ListenerRegistration? = null
+
     init {
         loadTeacherData()
-        loadClasses()
+        setupRealtimeClassListener()
+        registerFCMToken()
     }
 
     private fun loadTeacherData() {
@@ -54,6 +59,7 @@ class TeacherDashboardViewModel : ViewModel() {
             }
         }
     }
+
     private fun registerFCMToken() {
         viewModelScope.launch {
             try {
@@ -89,11 +95,24 @@ class TeacherDashboardViewModel : ViewModel() {
         }
     }
 
-    // Update init block
-    init {
-        loadTeacherData()
-        loadClasses()
-        registerFCMToken() // Add this
+    // FIX: Setup real-time listener for classes
+    private fun setupRealtimeClassListener() {
+        val currentUser = auth.currentUser ?: return
+
+        classesListener = db.collection("classes")
+            .whereEqualTo("teacherId", currentUser.uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    _error.value = "Failed to listen for class updates: ${error.message}"
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val classList = snapshot.toObjects(ClassRoom::class.java)
+                    _classes.value = classList
+                    android.util.Log.d("TeacherDashboard", "✅ Classes updated in real-time: ${classList.size} classes")
+                }
+            }
     }
 
     fun loadClasses() {
@@ -120,11 +139,18 @@ class TeacherDashboardViewModel : ViewModel() {
         }
     }
 
+    // FIX: Calculate total student count with real-time data
     fun getTotalStudentCount(): Int {
         return _classes.value?.sumOf { it.studentIds.size } ?: 0
     }
 
     fun signOut() {
         auth.signOut()
+    }
+
+    // FIX: Clean up listener when ViewModel is cleared
+    override fun onCleared() {
+        super.onCleared()
+        classesListener?.remove()
     }
 }

@@ -1,5 +1,6 @@
 package com.example.edutrack.repository
 
+import android.util.Log
 import com.example.edutrack.firebase.FirestoreService
 import com.example.edutrack.model.InvitationCode
 import com.google.firebase.Timestamp
@@ -9,6 +10,10 @@ import java.util.Calendar
 import kotlin.random.Random
 
 class InvitationCodeRepository {
+
+    companion object {
+        private const val TAG = "InvitationCodeRepo"
+    }
 
     private val db: FirebaseFirestore = FirestoreService.db
     private val codesCollection = db.collection(FirestoreService.INVITATION_CODES_COLLECTION)
@@ -27,6 +32,7 @@ class InvitationCodeRepository {
 
     /**
      * Create invitation code for a student
+     * FIX: Changed expiration to 12 hours instead of 24
      */
     suspend fun createInvitationCode(
         studentId: String,
@@ -35,6 +41,8 @@ class InvitationCodeRepository {
         classId: String
     ): Result<InvitationCode> {
         return try {
+            Log.d(TAG, "Creating invitation code for student: $studentName")
+
             // Generate unique code
             var code = generateRandomCode()
             var isUnique = false
@@ -57,12 +65,13 @@ class InvitationCodeRepository {
             }
 
             if (!isUnique) {
+                Log.e(TAG, "Failed to generate unique code after 10 attempts")
                 return Result.failure(Exception("Failed to generate unique code"))
             }
 
-            // Set expiration to 24 hours from now
+            // FIX: Set expiration to 12 hours from now (was 24)
             val expiresAt = Calendar.getInstance().apply {
-                add(Calendar.HOUR_OF_DAY, 24)
+                add(Calendar.HOUR_OF_DAY, 12)
             }.time
 
             val docRef = codesCollection.document()
@@ -81,8 +90,10 @@ class InvitationCodeRepository {
 
             docRef.set(invitationCode).await()
 
+            Log.d(TAG, "✅ Invitation code created: $code (expires in 12 hours)")
             Result.success(invitationCode)
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to create invitation code: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -92,12 +103,15 @@ class InvitationCodeRepository {
      */
     suspend fun validateCode(code: String): Result<InvitationCode> {
         return try {
+            Log.d(TAG, "Validating code: $code")
+
             val snapshot = codesCollection
                 .whereEqualTo("code", code.uppercase())
                 .get()
                 .await()
 
             if (snapshot.isEmpty) {
+                Log.w(TAG, "Invalid code: $code")
                 return Result.failure(Exception("Invalid code"))
             }
 
@@ -106,26 +120,33 @@ class InvitationCodeRepository {
 
             // Check if already used
             if (invitationCode.isUsed) {
+                Log.w(TAG, "Code already used: $code")
                 return Result.failure(Exception("Code already used"))
             }
 
             // Check if expired
             val now = Timestamp.now()
             if (invitationCode.expiresAt.seconds < now.seconds) {
+                Log.w(TAG, "Code expired: $code")
                 return Result.failure(Exception("Code expired"))
             }
 
+            Log.d(TAG, "✅ Code validated successfully: $code")
             Result.success(invitationCode)
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Code validation failed: ${e.message}", e)
             Result.failure(e)
         }
     }
 
     /**
      * Use invitation code to link parent and student
+     * FIX: Improved transaction handling to prevent permission errors
      */
     suspend fun useInvitationCode(code: String, parentId: String): Result<String> {
         return try {
+            Log.d(TAG, "Attempting to use code: $code for parent: $parentId")
+
             // Validate code first
             val validationResult = validateCode(code)
             if (validationResult.isFailure) {
@@ -134,35 +155,55 @@ class InvitationCodeRepository {
 
             val invitationCode = validationResult.getOrNull()!!
 
-            // Update student's parentId
-            studentsCollection.document(invitationCode.studentId)
-                .update("parentId", parentId)
-                .await()
+            // FIX: Use Firestore transaction for atomic operations
+            db.runTransaction { transaction ->
+                // 1. Get student document reference
+                val studentRef = studentsCollection.document(invitationCode.studentId)
+                val studentSnapshot = transaction.get(studentRef)
 
-            // Update parent's linkedStudentIds
-            val parentDoc = parentsCollection.document(parentId).get().await()
-            val currentStudentIds = parentDoc.get("linkedStudentIds") as? List<String> ?: emptyList()
-            val updatedStudentIds = currentStudentIds.toMutableList()
-            if (!updatedStudentIds.contains(invitationCode.studentId)) {
-                updatedStudentIds.add(invitationCode.studentId)
-            }
+                if (!studentSnapshot.exists()) {
+                    throw Exception("Student not found")
+                }
 
-            parentsCollection.document(parentId)
-                .update("linkedStudentIds", updatedStudentIds)
-                .await()
+                // 2. Get parent document reference
+                val parentRef = parentsCollection.document(parentId)
+                val parentSnapshot = transaction.get(parentRef)
 
-            // Mark code as used
-            codesCollection.document(invitationCode.codeId)
-                .update(
-                    mapOf(
-                        "isUsed" to true,
-                        "usedBy" to parentId
-                    )
-                )
-                .await()
+                if (!parentSnapshot.exists()) {
+                    throw Exception("Parent not found")
+                }
 
+                // 3. Update student's parentId
+                transaction.update(studentRef, "parentId", parentId)
+                Log.d(TAG, "Updated student parentId")
+
+                // 4. Update parent's linkedStudentIds
+                val currentStudentIds = parentSnapshot.get("linkedStudentIds") as? List<String> ?: emptyList()
+                val updatedStudentIds = currentStudentIds.toMutableList()
+
+                if (!updatedStudentIds.contains(invitationCode.studentId)) {
+                    updatedStudentIds.add(invitationCode.studentId)
+                }
+
+                transaction.update(parentRef, "linkedStudentIds", updatedStudentIds)
+                Log.d(TAG, "Updated parent linkedStudentIds")
+
+                // 5. Mark code as used
+                val codeRef = codesCollection.document(invitationCode.codeId)
+                transaction.update(codeRef, mapOf(
+                    "isUsed" to true,
+                    "usedBy" to parentId
+                ))
+                Log.d(TAG, "Marked code as used")
+
+                null
+            }.await()
+
+            Log.d(TAG, "✅ Student linked successfully!")
             Result.success("Student linked successfully!")
+
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to link student: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -179,8 +220,10 @@ class InvitationCodeRepository {
                 .await()
 
             val codes = snapshot.toObjects(InvitationCode::class.java)
+            Log.d(TAG, "Retrieved ${codes.size} codes for student: $studentId")
             Result.success(codes)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to get codes for student: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -191,8 +234,10 @@ class InvitationCodeRepository {
     suspend fun deleteCode(codeId: String): Result<Unit> {
         return try {
             codesCollection.document(codeId).delete().await()
+            Log.d(TAG, "Deleted code: $codeId")
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete code: ${e.message}", e)
             Result.failure(e)
         }
     }

@@ -13,6 +13,7 @@ import com.example.edutrack.MainActivity
 import com.example.edutrack.R
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.InvitationCodeRepository
+import com.example.edutrack.ui.parent.ParentProfileActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
@@ -66,7 +67,9 @@ class ParentDashboardActivity : AppCompatActivity() {
         }
 
         findViewById<android.view.View>(R.id.btnNavProfile).setOnClickListener {
-            Toast.makeText(this, "Profile coming soon", Toast.LENGTH_SHORT).show()
+            // Navigate to profile
+            val intent = Intent(this, ParentProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 

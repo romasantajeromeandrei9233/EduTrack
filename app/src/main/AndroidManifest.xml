@@ -32,9 +32,13 @@
             android:name=".ui.teacher.ClassDetailActivity"
             android:exported="false" />
 
-        <!-- ADD THIS - StudentDetailActivity -->
         <activity
             android:name=".ui.teacher.StudentDetailActivity"
+            android:exported="false" />
+
+        <!-- ADD THIS - Teacher Profile -->
+        <activity
+            android:name=".ui.teacher.TeacherProfileActivity"
             android:exported="false" />
 
         <!-- Parent Activities -->
@@ -55,6 +59,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- ADD THIS - Parent Profile -->
+        <activity
+            android:name=".ui.parent.ParentProfileActivity"
+            android:exported="false" />
 
         <!-- FCM Service -->
         <service

@@ -70,7 +70,9 @@ class TeacherDashboardActivity : AppCompatActivity() {
         }
 
         findViewById<android.view.View>(R.id.btnNavProfile).setOnClickListener {
-            Toast.makeText(this, "Profile coming soon", Toast.LENGTH_SHORT).show()
+            // Navigate to profile
+            val intent = Intent(this, TeacherProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 

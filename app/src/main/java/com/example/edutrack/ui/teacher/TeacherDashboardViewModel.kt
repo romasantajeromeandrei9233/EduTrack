@@ -9,6 +9,7 @@ import com.example.edutrack.model.Teacher
 import com.example.edutrack.repository.ClassRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -46,12 +47,53 @@ class TeacherDashboardViewModel : ViewModel() {
                         .await()
 
                     val teacherData = doc.toObject(Teacher::class.java)
-                    _teacher.value = teacherData
+                    _teacher.value = teacherData!!
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to load teacher data: ${e.message}"
             }
         }
+    }
+    private fun registerFCMToken() {
+        viewModelScope.launch {
+            try {
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result
+                        saveFCMToken(token)
+                    } else {
+                        android.util.Log.e("FCM", "Failed to get token", task.exception)
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FCM", "Error getting FCM token: ${e.message}")
+            }
+        }
+    }
+
+    private fun saveFCMToken(token: String) {
+        viewModelScope.launch {
+            try {
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    db.collection("teachers")
+                        .document(currentUser.uid)
+                        .update("fcmToken", token)
+                        .await()
+
+                    android.util.Log.d("FCM", "Teacher token saved: $token")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FCM", "Failed to save token: ${e.message}")
+            }
+        }
+    }
+
+    // Update init block
+    init {
+        loadTeacherData()
+        loadClasses()
+        registerFCMToken() // Add this
     }
 
     fun loadClasses() {

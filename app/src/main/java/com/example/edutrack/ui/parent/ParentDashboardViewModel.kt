@@ -8,6 +8,7 @@ import com.example.edutrack.model.Parent
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.StudentRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -46,7 +47,7 @@ class ParentDashboardViewModel : ViewModel() {
                         .await()
 
                     val parentData = doc.toObject(Parent::class.java)
-                    _parent.value = parentData
+                    _parent.value = parentData!!
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to load parent data: ${e.message}"
@@ -80,5 +81,47 @@ class ParentDashboardViewModel : ViewModel() {
 
     fun signOut() {
         auth.signOut()
+    }
+
+    private fun registerFCMToken() {
+        viewModelScope.launch {
+            try {
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result
+                        saveFCMToken(token)
+                    } else {
+                        android.util.Log.e("FCM", "Failed to get token", task.exception)
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FCM", "Error getting FCM token: ${e.message}")
+            }
+        }
+    }
+
+    private fun saveFCMToken(token: String) {
+        viewModelScope.launch {
+            try {
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    db.collection("parents")
+                        .document(currentUser.uid)
+                        .update("fcmToken", token)
+                        .await()
+
+                    android.util.Log.d("FCM", "Token saved: $token")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FCM", "Failed to save token: ${e.message}")
+            }
+        }
+    }
+
+    // Call this in the init block
+    init {
+        loadParentData()
+        loadLinkedStudents()
+        registerFCMToken() // Add this line
     }
 }

@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -67,6 +69,10 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    implementation("com.google.guava:guava:32.1.3-android")
+
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

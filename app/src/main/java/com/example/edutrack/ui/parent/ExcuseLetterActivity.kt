@@ -8,9 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.edutrack.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.*
 
 class ExcuseLetterActivity : AppCompatActivity() {
 
@@ -88,14 +94,49 @@ class ExcuseLetterActivity : AppCompatActivity() {
             return
         }
 
-        // TODO: In M5, this will send a notification to the teacher
-        // For now, just show success message
-        Toast.makeText(
-            this,
-            "Excuse letter submitted! (Feature will be fully implemented in M5)",
-            Toast.LENGTH_LONG
-        ).show()
+        btnSubmit.isEnabled = false
+        btnSubmit.text = "Submitting..."
 
-        finish()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                val dateStr = dateFormat.format(calendar.time)
+
+                val excuseData = hashMapOf(
+                    "studentId" to studentId,
+                    "studentName" to studentName,
+                    "date" to Timestamp(calendar.time),
+                    "letter" to excuseLetter,
+                    "createdAt" to Timestamp.now(),
+                    "status" to "pending"
+                )
+
+                FirebaseFirestore.getInstance()
+                    .collection("excuseLetters")
+                    .add(excuseData)
+                    .await()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@ExcuseLetterActivity,
+                        "Excuse letter submitted successfully!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                }
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    btnSubmit.isEnabled = true
+                    btnSubmit.text = "Submit Excuse"
+
+                    Toast.makeText(
+                        this@ExcuseLetterActivity,
+                        "Failed to submit: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 }

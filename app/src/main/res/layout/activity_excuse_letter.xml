@@ -131,7 +131,7 @@
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
                     android:lines="10"
-                    android:hint="Dear Teacher,\n\nI would like to inform you that my child was unable to attend class due to..." />
+                    android:hint="\nDear Teacher,\n\nI would like to inform you that my child was unable to attend class due to..." />
             </com.google.android.material.textfield.TextInputLayout>
 
 

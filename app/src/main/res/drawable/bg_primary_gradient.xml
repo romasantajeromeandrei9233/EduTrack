@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="16dp" /> <!-- Match the 16dp radius from the layouts -->
+    <gradient
+        android:angle="0"
+        android:startColor="@color/primary_orange"
+        android:endColor="@color/primary_orange_dark"
+        android:type="linear" />
+</shape>

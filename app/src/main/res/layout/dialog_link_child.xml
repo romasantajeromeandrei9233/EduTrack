@@ -71,6 +71,7 @@
             android:layout_height="wrap_content"
             android:text="Link Child"
             android:layout_marginStart="8dp"
+            app:backgroundTint="@color/primary"
             style="@style/Widget.Material3.Button" />
 
 

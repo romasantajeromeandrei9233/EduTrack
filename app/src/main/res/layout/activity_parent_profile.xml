@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_main">
 
-    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -58,7 +57,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Profile Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,7 +86,6 @@
                         android:textColor="@color/text_primary"
                         android:layout_marginTop="4dp" />
 
-                    <!-- Name Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilName"
                         android:layout_width="match_parent"
@@ -107,7 +104,6 @@
                             android:inputType="textPersonName" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Phone Input with 11 digit limit -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilPhone"
                         android:layout_width="match_parent"
@@ -132,7 +128,6 @@
                             android:digits="0123456789" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Address Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilAddress"
                         android:layout_width="match_parent"
@@ -157,7 +152,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
@@ -167,6 +161,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
+                app:backgroundTint="@color/primary"
                 style="@style/Widget.Material3.Button" />
 
         </LinearLayout>

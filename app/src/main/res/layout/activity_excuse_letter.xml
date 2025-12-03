@@ -7,7 +7,6 @@
     android:background="@color/background_main">
 
 
-    <!-- Header with Purple Background -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -20,7 +19,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <!-- Back Button -->
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="32dp"
@@ -34,7 +32,6 @@
             app:tint="@color/white" />
 
 
-        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"
@@ -53,7 +50,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <!-- ScrollView for form -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -93,7 +89,6 @@
                 app:layout_constraintTop_toBottomOf="@id/tvFormTitle" />
 
 
-            <!-- Date Selection -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDate"
                 android:layout_width="match_parent"
@@ -116,7 +111,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <!-- Excuse Letter -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilExcuseLetter"
                 android:layout_width="match_parent"
@@ -141,7 +135,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <!-- Submit Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
@@ -151,6 +144,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
+                app:backgroundTint="@color/primary"
                 app:layout_constraintTop_toBottomOf="@id/tilExcuseLetter"
                 style="@style/Widget.Material3.Button" />
 

@@ -7,7 +7,6 @@
     android:background="@color/background_main">
 
 
-    <!-- Header with Purple Background -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -20,7 +19,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <!-- Back Button -->
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="32dp"
@@ -34,7 +32,6 @@
             app:tint="@color/white" />
 
 
-        <!-- Student Name -->
         <TextView
             android:id="@+id/tvStudentName"
             android:layout_width="0dp"
@@ -50,7 +47,6 @@
             app:layout_constraintBottom_toBottomOf="@id/btnBack" />
 
 
-        <!-- Class Name -->
         <TextView
             android:id="@+id/tvClassName"
             android:layout_width="wrap_content"
@@ -67,7 +63,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <!-- Current Status Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/currentStatusCard"
         android:layout_width="match_parent"
@@ -124,7 +119,6 @@
     </androidx.cardview.widget.CardView>
 
 
-    <!-- Log History Label -->
     <TextView
         android:id="@+id/tvHistoryLabel"
         android:layout_width="wrap_content"
@@ -139,7 +133,6 @@
         app:layout_constraintTop_toBottomOf="@id/currentStatusCard" />
 
 
-    <!-- Attendance History List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAttendanceHistory"
         android:layout_width="match_parent"
@@ -153,7 +146,6 @@
         app:layout_constraintBottom_toTopOf="@id/btnExcuseStudent" />
 
 
-    <!-- Excuse Student Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnExcuseStudent"
         android:layout_width="match_parent"
@@ -165,6 +157,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="12dp"
+        app:backgroundTint="@color/primary"
         app:layout_constraintBottom_toBottomOf="parent"
         style="@style/Widget.Material3.Button" />
 

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_main">
 
-    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -59,7 +58,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Student Info Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +98,6 @@
                         android:textColor="@color/text_secondary"
                         android:layout_marginTop="8dp" />
 
-                    <!-- FIX: Parent Details Section -->
                     <View
                         android:id="@+id/dividerParent"
                         android:layout_width="match_parent"
@@ -154,7 +151,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Invitation Code Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -223,6 +219,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
+                app:backgroundTint="@color/primary"
                 style="@style/Widget.Material3.Button" />
 
             <com.google.android.material.button.MaterialButton

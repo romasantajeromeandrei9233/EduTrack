@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_main">
 
+
     <!-- Header with Purple Background -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
@@ -17,6 +18,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="24dp"
         app:layout_constraintTop_toTopOf="parent">
+
 
         <!-- Back Button -->
         <ImageView
@@ -30,6 +32,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white" />
+
 
         <!-- Title -->
         <TextView
@@ -46,7 +49,9 @@
             app:layout_constraintTop_toTopOf="@id/btnBack"
             app:layout_constraintBottom_toBottomOf="@id/btnBack" />
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <!-- ScrollView for form -->
     <ScrollView
@@ -56,10 +61,12 @@
         app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintBottom_toBottomOf="parent">
 
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp">
+
 
             <TextView
                 android:id="@+id/tvFormTitle"
@@ -72,6 +79,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+
             <TextView
                 android:id="@+id/tvStudentName"
                 android:layout_width="wrap_content"
@@ -83,6 +91,7 @@
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvFormTitle" />
+
 
             <!-- Date Selection -->
             <com.google.android.material.textfield.TextInputLayout
@@ -97,6 +106,7 @@
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:layout_constraintTop_toBottomOf="@id/tvStudentName">
 
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDate"
                     android:layout_width="match_parent"
@@ -104,6 +114,7 @@
                     android:focusable="false"
                     android:clickable="true" />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <!-- Excuse Letter -->
             <com.google.android.material.textfield.TextInputLayout
@@ -118,6 +129,7 @@
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:layout_constraintTop_toBottomOf="@id/tilDate">
 
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etExcuseLetter"
                     android:layout_width="match_parent"
@@ -127,6 +139,7 @@
                     android:lines="10"
                     android:hint="Dear Teacher,\n\nI would like to inform you that my child was unable to attend class due to..." />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <!-- Submit Button -->
             <com.google.android.material.button.MaterialButton
@@ -141,8 +154,11 @@
                 app:layout_constraintTop_toBottomOf="@id/tilExcuseLetter"
                 style="@style/Widget.Material3.Button" />
 
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
     </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

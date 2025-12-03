@@ -91,7 +91,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
 
         viewModel.error.observe(this) { error ->
             error?.let {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, TeacherProfileActivity::class.java))
             }
         }
 

@@ -13,7 +13,6 @@ import com.example.edutrack.MainActivity
 import com.example.edutrack.R
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.InvitationCodeRepository
-import com.example.edutrack.ui.parent.ParentProfileActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
@@ -43,6 +42,12 @@ class ParentDashboardActivity : AppCompatActivity() {
         observeViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Force reload students when returning to this activity
+        viewModel.loadLinkedStudents()
+    }
+
     private fun initializeViews() {
         tvParentName = findViewById(R.id.tvParentName)
         rvStudents = findViewById(R.id.rvStudents)
@@ -66,8 +71,8 @@ class ParentDashboardActivity : AppCompatActivity() {
             signOut()
         }
 
+        // FIX: Add click listener for profile button
         findViewById<android.view.View>(R.id.btnNavProfile).setOnClickListener {
-            // Navigate to profile
             val intent = Intent(this, ParentProfileActivity::class.java)
             startActivity(intent)
         }
@@ -141,8 +146,10 @@ class ParentDashboardActivity : AppCompatActivity() {
                             message,
                             Toast.LENGTH_LONG
                         ).show()
-                        // Reload students
-                        viewModel.loadLinkedStudents()
+                        // FIX: Force reload with delay to ensure Firestore writes are complete
+                        rvStudents.postDelayed({
+                            viewModel.loadLinkedStudents()
+                        }, 1000)
                     },
                     onFailure = { exception ->
                         Toast.makeText(

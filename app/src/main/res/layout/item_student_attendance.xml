@@ -2,7 +2,6 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
@@ -11,10 +10,12 @@
     app:cardElevation="2dp"
     app:cardBackgroundColor="@color/card_background">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
+
 
         <!-- Status Color Indicator Bar -->
         <View
@@ -26,19 +27,21 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
+
         <!-- Student Name -->
         <TextView
             android:id="@+id/tvStudentName"
-            android:layout_width="86dp"
-            android:layout_height="47dp"
-            android:layout_marginStart="12dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:text="Student-name-1"
-            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/chipGroup"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="12dp"
             app:layout_constraintStart_toEndOf="@id/statusIndicator"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/chipGroup" />
+
 
         <!-- Status Selection Chips -->
         <com.google.android.material.chip.ChipGroup
@@ -51,6 +54,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
+
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPresent"
                 android:layout_width="wrap_content"
@@ -61,6 +65,7 @@
                 app:chipBackgroundColor="@color/status_present"
                 app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
+
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipLate"
@@ -73,6 +78,7 @@
                 app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
+
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAbsent"
                 android:layout_width="wrap_content"
@@ -83,6 +89,7 @@
                 app:chipBackgroundColor="@color/status_absent"
                 app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
+
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipExcused"
@@ -95,8 +102,13 @@
                 app:chipMinHeight="32dp"
                 style="@style/Widget.Material3.Chip.Filter" />
 
+
         </com.google.android.material.chip.ChipGroup>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+
 </androidx.cardview.widget.CardView>
+
+

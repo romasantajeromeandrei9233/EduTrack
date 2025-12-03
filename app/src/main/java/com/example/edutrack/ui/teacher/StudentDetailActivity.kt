@@ -14,9 +14,11 @@ import com.example.edutrack.repository.InvitationCodeRepository
 import com.example.edutrack.repository.StudentRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -30,6 +32,10 @@ class StudentDetailActivity : AppCompatActivity() {
     private lateinit var tvStudentName: TextView
     private lateinit var tvGrade: TextView
     private lateinit var tvParentStatus: TextView
+    // NEW: Add TextViews for parent info
+    private lateinit var tvParentName: TextView
+    private lateinit var tvParentPhone: TextView
+    private lateinit var tvParentAddress: TextView
     private lateinit var tvCodeStatus: TextView
     private lateinit var tvCode: TextView
     private lateinit var tvCodeExpiry: TextView
@@ -38,6 +44,7 @@ class StudentDetailActivity : AppCompatActivity() {
 
     private val studentRepository = StudentRepository()
     private val invitationCodeRepository = InvitationCodeRepository()
+    private val db = FirebaseFirestore.getInstance()
 
     private var currentCode: InvitationCode? = null
 
@@ -59,6 +66,10 @@ class StudentDetailActivity : AppCompatActivity() {
         tvStudentName = findViewById(R.id.tvStudentName)
         tvGrade = findViewById(R.id.tvGrade)
         tvParentStatus = findViewById(R.id.tvParentStatus)
+        // NEW: Initialize parent info views
+        tvParentName = findViewById(R.id.tvParentName)
+        tvParentPhone = findViewById(R.id.tvParentPhone)
+        tvParentAddress = findViewById(R.id.tvParentAddress)
         tvCodeStatus = findViewById(R.id.tvCodeStatus)
         tvCode = findViewById(R.id.tvCode)
         tvCodeExpiry = findViewById(R.id.tvCodeExpiry)
@@ -94,13 +105,54 @@ class StudentDetailActivity : AppCompatActivity() {
                         if (student.parentId.isNotBlank()) {
                             tvParentStatus.text = "Parent: Linked"
                             tvParentStatus.setTextColor(getColor(R.color.status_present))
+
+                            // NEW: Load parent information
+                            loadParentInfo(student.parentId)
                         } else {
                             tvParentStatus.text = "Parent: Not Linked"
                             tvParentStatus.setTextColor(getColor(R.color.status_absent))
+                            // Hide parent info section
+                            tvParentName.visibility = View.GONE
+                            tvParentPhone.visibility = View.GONE
+                            tvParentAddress.visibility = View.GONE
                         }
                     },
                     onFailure = { }
                 )
+            }
+        }
+    }
+
+    // NEW: Load parent information
+    private fun loadParentInfo(parentId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val parentDoc = db.collection("parents")
+                    .document(parentId)
+                    .get()
+                    .await()
+
+                withContext(Dispatchers.Main) {
+                    val parentName = parentDoc.getString("name") ?: "N/A"
+                    val parentPhone = parentDoc.getString("phoneNumber") ?: "N/A"
+                    val parentAddress = parentDoc.getString("address") ?: "N/A"
+
+                    tvParentName.text = "Parent: $parentName"
+                    tvParentPhone.text = "Phone: $parentPhone"
+                    tvParentAddress.text = "Address: $parentAddress"
+
+                    tvParentName.visibility = View.VISIBLE
+                    tvParentPhone.visibility = View.VISIBLE
+                    tvParentAddress.visibility = View.VISIBLE
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@StudentDetailActivity,
+                        "Failed to load parent info",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

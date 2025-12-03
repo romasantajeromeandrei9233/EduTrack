@@ -7,49 +7,40 @@
     android:fillViewport="true">
 
 
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="32dp">
 
 
-
-
-        <!-- Logo/Title -->
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="EduTrack"
-            android:textSize="42sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary"
-            android:letterSpacing="0.02"
+        <!-- Image Replaceable Placeholder (Circular/Rounded Logo) -->
+        <ImageView
+            android:id="@+id/ivLogoPlaceholder"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_marginTop="64dp"
+            android:src="@drawable/ic_logo_placeholder"
+            android:background="@drawable/bg_logo_circle"
+            android:contentDescription="Application Logo"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
 
-
-
+        <!-- Subtitle/Screen Title -->
         <TextView
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LOGIN"
-            android:textSize="18sp"
+            android:text="Welcome Back"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/text_secondary"
-            android:letterSpacing="0.1"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            android:textColor="@color/text_primary"
+            android:letterSpacing="0.05"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/ivLogoPlaceholder"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-
 
 
         <!-- Email Input -->
@@ -58,14 +49,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
-            android:hint="Email"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
+            android:hint="Email Address"
+            app:hintTextColor="@color/accent_blue"
+            app:boxStrokeColor="@color/accent_blue"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
             app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
-
-
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -76,8 +67,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
-
         <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
@@ -85,14 +74,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Password"
+            app:hintTextColor="@color/accent_blue"
+            app:boxStrokeColor="@color/accent_blue"
             app:passwordToggleEnabled="true"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
             app:layout_constraintTop_toBottomOf="@id/tilEmail">
-
-
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -103,22 +92,37 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
+        <!-- Forgot Password Link -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Forgot Password?"
+            android:textColor="@color/accent_teal"
+            android:textSize="14sp"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/tilPassword"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 
-        <!-- Login Button -->
+        <!-- Login Button (With Gradient and Accent) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="32dp"
-            android:text="Login"
-            android:textSize="16sp"
+            android:layout_height="60dp"
+            android:layout_marginTop="40dp"
+            android:text="Log In"
+            android:textSize="18sp"
+            android:textColor="@color/white"
             android:textStyle="bold"
-            app:cornerRadius="12dp"
-            app:layout_constraintTop_toBottomOf="@id/tilPassword"
-            style="@style/Widget.Material3.Button" />
-
-
+            app:cornerRadius="16dp"
+            android:background="@drawable/bg_primary_gradient"
+            app:backgroundTint="@null"
+            app:layout_constraintTop_toBottomOf="@id/tvForgotPassword"
+            />
 
 
         <!-- Progress Bar -->
@@ -126,6 +130,7 @@
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:indeterminateTint="@color/white"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="@id/btnLogin"
             app:layout_constraintBottom_toBottomOf="@id/btnLogin"
@@ -133,23 +138,21 @@
             app:layout_constraintEnd_toEndOf="@id/btnLogin" />
 
 
-
-
         <!-- Sign Up Link -->
         <TextView
             android:id="@+id/tvSignUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="32dp"
             android:text="Don't have an account? Sign Up"
-            android:textColor="@color/primary"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:textColor="@color/accent_teal"
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintTop_toBottomOf="@id/btnLogin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

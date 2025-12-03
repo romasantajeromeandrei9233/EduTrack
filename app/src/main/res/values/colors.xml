@@ -20,6 +20,8 @@
     <color name="accent_blue">@color/primary_orange_dark</color>
     <color name="accent_teal">@color/primary_orange</color>
     <color name="accent">@color/primary_orange</color>
+    <!-- FIX: Mapped the missing accent_green to the primary orange color to resolve the build error -->
+    <color name="accent_green">@color/primary_orange</color>
 
     <!-- Background Mappings -->
     <color name="background_main">@color/primary_light_peach</color>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,8 +15,6 @@ import com.example.edutrack.ui.parent.ParentDashboardActivity
 import com.example.edutrack.ui.teacher.TeacherDashboardActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import android.widget.ProgressBar
-import android.widget.TextView
 
 class LoginFragment : Fragment() {
 
@@ -24,8 +23,7 @@ class LoginFragment : Fragment() {
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvSignUp: TextView
+    private lateinit var btnNavSignUp: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,8 +39,7 @@ class LoginFragment : Fragment() {
         etEmail = view.findViewById(R.id.etEmail)
         etPassword = view.findViewById(R.id.etPassword)
         btnLogin = view.findViewById(R.id.btnLogin)
-        progressBar = view.findViewById(R.id.progressBar)
-        tvSignUp = view.findViewById(R.id.tvSignUp)
+        btnNavSignUp = view.findViewById(R.id.tvSignUp)
 
         setupClickListeners()
         observeAuthState()
@@ -55,7 +52,7 @@ class LoginFragment : Fragment() {
             viewModel.signIn(email, password)
         }
 
-        tvSignUp.setOnClickListener {
+        btnNavSignUp.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, SignUpFragment())
                 .addToBackStack(null)
@@ -67,19 +64,15 @@ class LoginFragment : Fragment() {
         viewModel.authState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is AuthState.Idle -> {
-                    progressBar.visibility = View.GONE
                     btnLogin.isEnabled = true
                 }
                 is AuthState.Loading -> {
-                    progressBar.visibility = View.VISIBLE
                     btnLogin.isEnabled = false
                 }
                 is AuthState.Success -> {
-                    progressBar.visibility = View.GONE
                     navigateBasedOnRole(state.role)
                 }
                 is AuthState.Error -> {
-                    progressBar.visibility = View.GONE
                     btnLogin.isEnabled = true
                     Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                 }

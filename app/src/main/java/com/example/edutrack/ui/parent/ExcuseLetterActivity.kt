@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.*
 
 class ExcuseLetterActivity : AppCompatActivity() {
 
@@ -96,12 +97,9 @@ class ExcuseLetterActivity : AppCompatActivity() {
             return
         }
 
-        btnSubmit.isEnabled = false
-        btnSubmit.text = "Submitting..."
-
+        // Get student's teacher ID
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get student to find teacher
                 val studentDoc = FirebaseFirestore.getInstance()
                     .collection("students")
                     .document(studentId)
@@ -110,7 +108,6 @@ class ExcuseLetterActivity : AppCompatActivity() {
 
                 val classId = studentDoc.getString("classId") ?: ""
 
-                // Get class to find teacher
                 val classDoc = FirebaseFirestore.getInstance()
                     .collection("classes")
                     .document(classId)
@@ -119,48 +116,50 @@ class ExcuseLetterActivity : AppCompatActivity() {
 
                 val teacherId = classDoc.getString("teacherId") ?: ""
 
-                // Save excuse letter
-                val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-                val dateStr = dateFormat.format(calendar.time)
-
-                val excuseData = hashMapOf(
-                    "studentId" to studentId,
-                    "studentName" to studentName,
-                    "teacherId" to teacherId,
-                    "date" to Timestamp(calendar.time),
-                    "letter" to excuseLetter,
-                    "createdAt" to Timestamp.now(),
-                    "status" to "pending"
-                )
-
-                FirebaseFirestore.getInstance()
-                    .collection("excuseLetters")
-                    .add(excuseData)
-                    .await()
-
-                // Send notification to teacher
                 if (teacherId.isNotBlank()) {
-                    FCMNotificationSender.sendExcuseNotification(
+                    // Send notification to teacher
+                    val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                    val dateStr = dateFormat.format(calendar.time)
+
+                    val result = FCMNotificationSender.sendExcuseNotification(
+                        context = this@ExcuseLetterActivity,
                         teacherId = teacherId,
                         studentName = studentName,
                         date = dateStr
                     )
-                }
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@ExcuseLetterActivity,
-                        "Excuse letter submitted successfully!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
+                    withContext(Dispatchers.Main) {
+                        result.fold(
+                            onSuccess = {
+                                Toast.makeText(
+                                    this@ExcuseLetterActivity,
+                                    "Excuse letter submitted & teacher notified!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                finish()
+                            },
+                            onFailure = {
+                                Toast.makeText(
+                                    this@ExcuseLetterActivity,
+                                    "Excuse submitted, but notification failed",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                finish()
+                            }
+                        )
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@ExcuseLetterActivity,
+                            "Excuse letter submitted!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    }
                 }
-
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    btnSubmit.isEnabled = true
-                    btnSubmit.text = "Submit Excuse"
-
                     Toast.makeText(
                         this@ExcuseLetterActivity,
                         "Failed to submit: ${e.message}",

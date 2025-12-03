@@ -35,7 +35,6 @@ class LoginViewModel : ViewModel() {
 
             result.fold(
                 onSuccess = { user ->
-                    // Get user role
                     val roleResult = authRepository.getUserRole(user.uid)
                     roleResult.fold(
                         onSuccess = { role ->

@@ -130,4 +130,65 @@ class AttendanceRepository {
         calendar.set(Calendar.MILLISECOND, 999)
         return Timestamp(calendar.time)
     }
+    /**
+     * Mark attendance with offline support
+     * Sets synced = false if offline, true if online
+     */
+    suspend fun markAttendanceOffline(
+        attendance: Attendance,
+        isOnline: Boolean
+    ): Result<String> {
+        return try {
+            val docRef = attendanceCollection.document()
+            val attendanceWithId = attendance.copy(
+                attendanceId = docRef.id,
+                synced = isOnline
+            )
+
+            docRef.set(attendanceWithId).await()
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Mark attendance batch with offline support
+     */
+    suspend fun markAttendanceBatchOffline(
+        attendanceList: List<Attendance>,
+        isOnline: Boolean
+    ): Result<Unit> {
+        return try {
+            val batch = db.batch()
+            attendanceList.forEach { attendance ->
+                val docRef = attendanceCollection.document()
+                val attendanceWithId = attendance.copy(
+                    attendanceId = docRef.id,
+                    synced = isOnline
+                )
+                batch.set(docRef, attendanceWithId)
+            }
+            batch.commit().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Get count of unsynced attendance records
+     */
+    suspend fun getUnsyncedCount(): Result<Int> {
+        return try {
+            val snapshot = attendanceCollection
+                .whereEqualTo("synced", false)
+                .get()
+                .await()
+
+            Result.success(snapshot.size())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

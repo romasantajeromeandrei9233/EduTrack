@@ -16,6 +16,7 @@ import com.example.edutrack.repository.AttendanceRepository
 import com.example.edutrack.repository.StudentRepository
 import com.example.edutrack.utils.FCMNotificationSender
 import com.example.edutrack.utils.AttendanceUtils
+import com.example.edutrack.utils.OfflineAttendanceManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.Timestamp
@@ -158,9 +159,16 @@ class ClassDetailActivity : AppCompatActivity() {
             return
         }
 
+        // Check online status
+        val isOnline = OfflineAttendanceManager.isOnline(this)
+
         // Show loading
         btnSaveAttendance.isEnabled = false
-        btnSaveAttendance.text = "Saving..."
+        if (isOnline) {
+            btnSaveAttendance.text = "Saving..."
+        } else {
+            btnSaveAttendance.text = "Saving Offline..."
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             val attendanceList = attendanceData.map { item ->
@@ -169,34 +177,46 @@ class ClassDetailActivity : AppCompatActivity() {
                     date = Timestamp.now(),
                     status = item.status,
                     teacherId = teacherId,
-                    synced = true
+                    synced = isOnline
                 )
             }
 
-            val result = attendanceRepository.markAttendanceBatch(attendanceList)
+            val result = attendanceRepository.markAttendanceBatchOffline(attendanceList, isOnline)
 
             result.fold(
                 onSuccess = {
-                    // Send notifications to parents
-                    attendanceData.forEach { item ->
-                        CoroutineScope(Dispatchers.IO).launch {
-                            FCMNotificationSender.sendAttendanceNotification(
-                                studentId = item.student.studentId,
-                                studentName = item.student.name,
-                                status = AttendanceUtils.getStatusText(item.status),
-                                date = Date()
-                            )
+                    if (isOnline) {
+                        // Send notifications immediately
+                        attendanceData.forEach { item ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                FCMNotificationSender.sendAttendanceNotification(
+                                    context = this@ClassDetailActivity,
+                                    studentId = item.student.studentId,
+                                    studentName = item.student.name,
+                                    status = AttendanceUtils.getStatusText(item.status),
+                                    date = Date()
+                                )
+                            }
                         }
+                    } else {
+                        // Schedule sync for later
+                        OfflineAttendanceManager.scheduleSyncWork(this@ClassDetailActivity)
                     }
 
                     withContext(Dispatchers.Main) {
                         btnSaveAttendance.isEnabled = true
                         btnSaveAttendance.text = "Save Attendance"
 
+                        val message = if (isOnline) {
+                            "Attendance saved & notifications sent!"
+                        } else {
+                            "Attendance saved offline. Will sync when online."
+                        }
+
                         Toast.makeText(
                             this@ClassDetailActivity,
-                            "Attendance saved & notifications sent!",
-                            Toast.LENGTH_SHORT
+                            message,
+                            Toast.LENGTH_LONG
                         ).show()
                         updateAttendanceStats()
                     }

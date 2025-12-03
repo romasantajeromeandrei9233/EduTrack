@@ -1,1 +1,3 @@
 /build
+# Firebase Service Account (DO NOT COMMIT!)
+app/src/main/assets/service-account.json

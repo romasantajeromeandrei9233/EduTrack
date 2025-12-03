@@ -14,11 +14,14 @@ import com.example.edutrack.R
 import com.example.edutrack.model.ClassRoom
 import com.example.edutrack.repository.ClassRepository
 import com.example.edutrack.utils.SampleDataCreator
+import com.example.edutrack.repository.AttendanceRepository
+import com.example.edutrack.utils.OfflineAttendanceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TeacherDashboardActivity : AppCompatActivity() {
 
@@ -88,6 +91,36 @@ class TeacherDashboardActivity : AppCompatActivity() {
             error?.let {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
             }
+        }
+
+        // Check for pending syncs
+        checkPendingSyncs()
+    }
+
+    private fun checkPendingSyncs() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val attendanceRepository = AttendanceRepository()
+            val result = attendanceRepository.getUnsyncedCount()
+
+            result.fold(
+                onSuccess = { count ->
+                    if (count > 0) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@TeacherDashboardActivity,
+                                "$count attendance records pending sync",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        // Trigger sync if online
+                        if (OfflineAttendanceManager.isOnline(this@TeacherDashboardActivity)) {
+                            OfflineAttendanceManager.scheduleSyncWork(this@TeacherDashboardActivity)
+                        }
+                    }
+                },
+                onFailure = { }
+            )
         }
     }
 

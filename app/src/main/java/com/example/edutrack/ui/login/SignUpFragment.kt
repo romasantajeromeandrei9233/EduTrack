@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.RadioButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,7 +28,7 @@ class SignUpFragment : Fragment() {
     private lateinit var rbParent: RadioButton
     private lateinit var btnSignUp: MaterialButton
     private lateinit var progressBar: ProgressBar
-    private lateinit var tvLogin: TextView
+    private lateinit var btnNavLogin: MaterialButton  // Changed from tvLogin
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +48,7 @@ class SignUpFragment : Fragment() {
         rbParent = view.findViewById(R.id.rbParent)
         btnSignUp = view.findViewById(R.id.btnSignUp)
         progressBar = view.findViewById(R.id.progressBar)
-        tvLogin = view.findViewById(R.id.tvLogin)
+        btnNavLogin = view.findViewById(R.id.btnNavLogin)  // Changed from tvLogin
 
         setupClickListeners()
         observeAuthState()
@@ -65,7 +64,7 @@ class SignUpFragment : Fragment() {
             viewModel.signUp(email, password, name, role)
         }
 
-        tvLogin.setOnClickListener {
+        btnNavLogin.setOnClickListener {  // Changed from tvLogin
             parentFragmentManager.popBackStack()
         }
     }

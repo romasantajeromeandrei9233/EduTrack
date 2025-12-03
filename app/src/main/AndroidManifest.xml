@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -31,18 +32,29 @@
             android:name=".ui.teacher.ClassDetailActivity"
             android:exported="false" />
 
+        <!-- ADD THIS - StudentDetailActivity -->
+        <activity
+            android:name=".ui.teacher.StudentDetailActivity"
+            android:exported="false" />
+
         <!-- Parent Activities -->
         <activity
             android:name=".ui.parent.ParentDashboardActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.parent.StudentAttendanceActivity"
+            android:name=".ui.parent.ExcuseLetterActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.parent.ExcuseLetterActivity"
-            android:exported="false" />
+            android:name=".ui.parent.StudentAttendanceActivity"
+            android:exported="false"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="OPEN_ATTENDANCE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <!-- FCM Service -->
         <service

@@ -1,37 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- CORE DEFINITIONS -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Primary Colors - Purple/Blue Theme -->
-    <color name="primary">#6366F1</color>              <!-- Indigo/Purple -->
-    <color name="primary_dark">#4F46E5</color>
-    <color name="primary_light">#A5B4FC</color>
-    <color name="accent">#8B5CF6</color>               <!-- Purple accent -->
+    <!-- ORANGE THEME HEX CODES -->
+    <color name="primary_orange">#f58025</color>           <!-- Main Accent: CTA Base (Orange) -->
+    <color name="primary_orange_dark">#ff7800</color>      <!-- Gradient End: Brighter Orange -->
+    <color name="primary_light_peach">#ffe5b4</color>      <!-- Lightest background shade (Conceptual Orange) -->
 
-    <!-- Background Colors -->
-    <color name="background_main">#F8FAFC</color>      <!-- Light gray background -->
-    <color name="card_background">#FFFFFF</color>
-    <color name="card_shadow">#10000000</color>
+    <!-- MAPPED NAMES (Strictly limited to Black, White, or Orange shades) -->
 
-    <!-- Text Colors -->
-    <color name="text_primary">#1E293B</color>         <!-- Dark slate -->
-    <color name="text_secondary">#64748B</color>       <!-- Gray -->
-    <color name="text_tertiary">#94A3B8</color>        <!-- Light gray -->
+    <!-- Theme Compatibility Mappings -->
+    <color name="primary">@color/primary_orange</color>
+    <color name="primary_dark">@color/primary_orange_dark</color>
+    <color name="primary_light">@color/primary_light_peach</color>
 
-    <!-- Attendance Status Colors -->
-    <color name="status_present">#10B981</color>       <!-- Green -->
-    <color name="status_late">#F59E0B</color>          <!-- Amber/Orange -->
-    <color name="status_absent">#EF4444</color>        <!-- Red -->
-    <color name="status_excused">#3B82F6</color>       <!-- Blue -->
+    <!-- Accent Mappings (Now Orange) -->
+    <color name="accent_blue">@color/primary_orange_dark</color>
+    <color name="accent_teal">@color/primary_orange</color>
+    <color name="accent">@color/primary_orange</color>
 
-    <!-- Status Colors (Light backgrounds) -->
-    <color name="status_present_light">#D1FAE5</color>
-    <color name="status_late_light">#FEF3C7</color>
-    <color name="status_absent_light">#FEE2E2</color>
-    <color name="status_excused_light">#DBEAFE</color>
+    <!-- Background Mappings -->
+    <color name="background_main">@color/primary_light_peach</color>
+    <color name="card_background">@color/white</color>
+    <color name="card_shadow">#10000000</color> <!-- Keeping shadow opacity for subtle elevation -->
 
-    <!-- Additional UI Colors -->
-    <color name="divider">#E2E8F0</color>
-    <color name="icon_gray">#94A3B8</color>
+    <!-- Text Mappings -->
+    <color name="text_primary">@color/black</color>
+    <color name="text_secondary">@color/primary_orange</color>
+    <color name="text_tertiary">@color/primary_orange</color>
+
+    <!-- Attendance Status Colors (Monochromatic Orange) -->
+    <color name="status_present">@color/primary_orange</color>
+    <color name="status_late">@color/primary_orange</color>
+    <color name="status_absent">@color/primary_orange</color>
+    <color name="status_excused">@color/primary_orange</color>
+
+    <!-- Status Colors (Light backgrounds mapped to White/Light Peach) -->
+    <color name="status_present_light">@color/white</color>
+    <color name="status_late_light">@color/primary_light_peach</color>
+    <color name="status_absent_light">@color/primary_light_peach</color>
+    <color name="status_excused_light">@color/primary_light_peach</color>
+
+    <!-- Additional UI Mappings -->
+    <color name="divider">@color/primary_orange_dark</color>
+    <color name="icon_gray">@color/primary_orange</color>
 </resources>

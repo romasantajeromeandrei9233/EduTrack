@@ -1,10 +1,13 @@
 package com.example.edutrack.ui.login
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,18 +17,20 @@ import com.example.edutrack.ui.parent.ParentDashboardActivity
 import com.example.edutrack.ui.teacher.TeacherDashboardActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import android.widget.ProgressBar
-import android.widget.TextView
+
 
 class LoginFragment : Fragment() {
 
+
     private val viewModel: LoginViewModel by viewModels()
+
 
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvSignUp: TextView
+    private lateinit var progressBar: ProgressBar // Added declaration for ProgressBar
+    private lateinit var btnNavSignUp: TextView // CORRECTED TYPE: Must be TextView to match R.id.tvSignUp
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,18 +40,22 @@ class LoginFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         etEmail = view.findViewById(R.id.etEmail)
         etPassword = view.findViewById(R.id.etPassword)
         btnLogin = view.findViewById(R.id.btnLogin)
-        progressBar = view.findViewById(R.id.progressBar)
-        tvSignUp = view.findViewById(R.id.tvSignUp)
+        progressBar = view.findViewById(R.id.progressBar) // Added initialization
+        btnNavSignUp = view.findViewById(R.id.tvSignUp) // Assigned to TextView
+
 
         setupClickListeners()
         observeAuthState()
     }
+
 
     private fun setupClickListeners() {
         btnLogin.setOnClickListener {
@@ -55,7 +64,8 @@ class LoginFragment : Fragment() {
             viewModel.signIn(email, password)
         }
 
-        tvSignUp.setOnClickListener {
+
+        btnNavSignUp.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, SignUpFragment())
                 .addToBackStack(null)
@@ -63,15 +73,16 @@ class LoginFragment : Fragment() {
         }
     }
 
+
     private fun observeAuthState() {
         viewModel.authState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is AuthState.Idle -> {
-                    progressBar.visibility = View.GONE
+                    progressBar.visibility = View.GONE // Show progress bar during loading
                     btnLogin.isEnabled = true
                 }
                 is AuthState.Loading -> {
-                    progressBar.visibility = View.VISIBLE
+                    progressBar.visibility = View.VISIBLE // Hide progress bar after complete
                     btnLogin.isEnabled = false
                 }
                 is AuthState.Success -> {
@@ -86,6 +97,7 @@ class LoginFragment : Fragment() {
             }
         }
     }
+
 
     private fun navigateBasedOnRole(role: UserRole) {
         val intent = when (role) {

@@ -36,6 +36,10 @@
             android:name=".ui.teacher.StudentDetailActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.teacher.ExcuseLettersActivity"
+            android:exported="false" />
+
         <!-- ADD THIS - Teacher Profile -->
         <activity
             android:name=".ui.teacher.TeacherProfileActivity"

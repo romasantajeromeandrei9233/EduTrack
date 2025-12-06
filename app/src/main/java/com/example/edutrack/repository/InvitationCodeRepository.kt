@@ -215,11 +215,12 @@ class InvitationCodeRepository {
         return try {
             val snapshot = codesCollection
                 .whereEqualTo("studentId", studentId)
-                .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
 
             val codes = snapshot.toObjects(InvitationCode::class.java)
+                .sortedByDescending { it.createdAt.seconds }
+
             Log.d(TAG, "Retrieved ${codes.size} codes for student: $studentId")
             Result.success(codes)
         } catch (e: Exception) {

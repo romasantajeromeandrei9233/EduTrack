@@ -3,6 +3,7 @@ package com.example.edutrack.ui.teacher
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -58,6 +59,7 @@ class StudentDetailActivity : AppCompatActivity() {
 
     private var currentCode: InvitationCode? = null
     private var isLoading = false
+    private lateinit var btnViewExcuses: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +102,7 @@ class StudentDetailActivity : AppCompatActivity() {
             tvCodeExpiry = findViewById(R.id.tvCodeExpiry)
             btnGenerateCode = findViewById(R.id.btnGenerateCode)
             btnCopyCode = findViewById(R.id.btnCopyCode)
+            btnViewExcuses = findViewById(R.id.btnViewExcuses)
 
             tvStudentName.text = studentName
         } catch (e: Exception) {
@@ -122,6 +125,10 @@ class StudentDetailActivity : AppCompatActivity() {
 
             btnCopyCode.setOnClickListener {
                 copyCodeToClipboard()
+            }
+
+            btnViewExcuses.setOnClickListener {
+                openExcuseLetters()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up click listeners: ${e.message}", e)
@@ -330,6 +337,13 @@ class StudentDetailActivity : AppCompatActivity() {
                 btnGenerateCode.isEnabled = true
             }
         }
+    }
+
+    private fun openExcuseLetters() {
+        val intent = Intent(this, ExcuseLettersActivity::class.java)
+        intent.putExtra("STUDENT_ID", studentId)
+        intent.putExtra("STUDENT_NAME", studentName)
+        startActivity(intent)
     }
 
     private fun displayCode(code: InvitationCode) {

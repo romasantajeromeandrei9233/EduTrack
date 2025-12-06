@@ -41,8 +41,12 @@ class StudentAttendanceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_attendance)
 
-        studentId = intent.getStringExtra("STUDENT_ID") ?: ""
-        studentName = intent.getStringExtra("STUDENT_NAME") ?: ""
+        studentId = intent.getStringExtra("STUDENT_ID") ?: run {
+            Toast.makeText(this, "Error: Missing student information", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        studentName = intent.getStringExtra("STUDENT_NAME") ?: "Unknown Student"
 
         initializeViews()
         setupRecyclerView()
@@ -99,35 +103,60 @@ class StudentAttendanceActivity : AppCompatActivity() {
 
     private fun loadAttendanceHistory() {
         CoroutineScope(Dispatchers.IO).launch {
-            val result = attendanceRepository.getAttendanceByStudent(studentId)
+            try {
+                val result = attendanceRepository.getAttendanceByStudent(studentId)
 
-            withContext(Dispatchers.Main) {
-                result.fold(
-                    onSuccess = { attendanceList ->
-                        if (attendanceList.isNotEmpty()) {
-                            // Show most recent attendance as current status
-                            val latest = attendanceList.first()
-                            tvCurrentStatus.text = AttendanceUtils.getStatusText(latest.status)
-                            val statusColor = AttendanceUtils.getStatusColor(
+                withContext(Dispatchers.Main) {
+                    result.fold(
+                        onSuccess = { attendanceList ->
+                            if (attendanceList.isNotEmpty()) {
+                                // Show most recent attendance as current status
+                                val latest = attendanceList.first()
+                                tvCurrentStatus.text = AttendanceUtils.getStatusText(latest.status)
+                                val statusColor = AttendanceUtils.getStatusColor(
+                                    this@StudentAttendanceActivity,
+                                    latest.status
+                                )
+                                tvCurrentStatus.setTextColor(statusColor)
+
+                                val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                                tvCurrentDate.text = dateFormat.format(latest.date.toDate())
+
+                                // Update history adapter
+                                historyAdapter.updateAttendance(attendanceList)
+                            } else {
+                                // FIX: Handle empty attendance list gracefully
+                                tvCurrentStatus.text = "No Records"
+                                tvCurrentStatus.setTextColor(getColor(R.color.text_secondary))
+                                historyAdapter.updateAttendance(emptyList())
+                                Toast.makeText(
+                                    this@StudentAttendanceActivity,
+                                    "No attendance records found",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onFailure = { exception ->
+                            // FIX: Better error logging and user feedback
+                            android.util.Log.e("StudentAttendance", "Failed to load history: ${exception.message}", exception)
+                            Toast.makeText(
                                 this@StudentAttendanceActivity,
-                                latest.status
-                            )
-                            tvCurrentStatus.setTextColor(statusColor)
-
-                            val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-                            tvCurrentDate.text = dateFormat.format(latest.date.toDate())
+                                "Failed to load history: ${exception.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-
-                        historyAdapter.updateAttendance(attendanceList)
-                    },
-                    onFailure = { exception ->
-                        Toast.makeText(
-                            this@StudentAttendanceActivity,
-                            "Failed to load history: ${exception.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                )
+                    )
+                }
+            } catch (e: Exception) {
+                // FIX: Catch any unexpected errors
+                withContext(Dispatchers.Main) {
+                    android.util.Log.e("StudentAttendance", "Unexpected error: ${e.message}", e)
+                    Toast.makeText(
+                        this@StudentAttendanceActivity,
+                        "An error occurred. Please try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

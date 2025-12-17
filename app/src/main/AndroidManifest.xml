@@ -36,7 +36,6 @@
             android:name=".ui.teacher.StudentDetailActivity"
             android:exported="false" />
 
-        <!-- ADD THIS - Teacher Profile -->
         <activity
             android:name=".ui.teacher.TeacherProfileActivity"
             android:exported="false" />
@@ -44,10 +43,6 @@
         <!-- Parent Activities -->
         <activity
             android:name=".ui.parent.ParentDashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.parent.ExcuseLetterActivity"
             android:exported="false" />
 
         <activity
@@ -60,7 +55,6 @@
             </intent-filter>
         </activity>
 
-        <!-- ADD THIS - Parent Profile -->
         <activity
             android:name=".ui.parent.ParentProfileActivity"
             android:exported="false" />

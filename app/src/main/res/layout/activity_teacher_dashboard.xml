@@ -59,7 +59,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Stats Cards Container -->
+    <!-- Stats Cards -->
     <LinearLayout
         android:id="@+id/statsLayout"
         android:layout_width="match_parent"
@@ -75,7 +75,7 @@
         <!-- Classes Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_height="120dp"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:layout_marginEnd="10dp"
             app:cardCornerRadius="16dp"
@@ -93,16 +93,17 @@
                     android:id="@+id/tvClassCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2"
-                    android:textSize="40sp"
+                    android:text="0"
+                    android:textSize="36sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Classes"
-                    android:textSize="16sp"
+                    android:text="CLASSES"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
                     android:textColor="@color/text_secondary"
                     android:layout_marginTop="4dp" />
 
@@ -113,7 +114,7 @@
         <!-- Students Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_height="120dp"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
             app:cardCornerRadius="16dp"
@@ -131,16 +132,17 @@
                     android:id="@+id/tvStudentCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="25"
-                    android:textSize="40sp"
+                    android:text="0"
+                    android:textSize="36sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Students"
-                    android:textSize="16sp"
+                    android:text="STUDENTS"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
                     android:textColor="@color/text_secondary"
                     android:layout_marginTop="4dp" />
 
@@ -150,7 +152,7 @@
 
     </LinearLayout>
 
-    <!-- Classes List -->
+    <!-- Classes List: Now constrained below statsLayout -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvClasses"
         android:layout_width="match_parent"

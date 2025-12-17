@@ -88,6 +88,18 @@ class ParentProfileActivity : AppCompatActivity() {
             return
         }
 
+        // Validate phone number length
+        if (phone.isNotEmpty() && phone.length != 11) {
+            Toast.makeText(this, "Phone number must be exactly 11 digits", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Validate phone number contains only digits
+        if (phone.isNotEmpty() && !phone.all { it.isDigit() }) {
+            Toast.makeText(this, "Phone number must contain only digits", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         btnSave.isEnabled = false
         btnSave.text = "Saving..."
 

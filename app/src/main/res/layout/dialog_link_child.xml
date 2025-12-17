@@ -6,6 +6,7 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,6 +15,7 @@
         android:textStyle="bold"
         android:textColor="@color/text_primary" />
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,6 +23,7 @@
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginTop="8dp" />
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilCode"
@@ -35,6 +38,7 @@
         app:counterEnabled="true"
         app:counterMaxLength="6">
 
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etCode"
             android:layout_width="match_parent"
@@ -44,12 +48,14 @@
             android:textAllCaps="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="24dp"
         android:gravity="end">
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"
@@ -58,14 +64,18 @@
             android:text="Cancel"
             style="@style/Widget.Material3.Button.TextButton" />
 
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Link Child"
             android:layout_marginStart="8dp"
+            app:backgroundTint="@color/primary"
             style="@style/Widget.Material3.Button" />
 
+
     </LinearLayout>
+
 
 </LinearLayout>

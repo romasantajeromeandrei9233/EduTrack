@@ -42,10 +42,14 @@ class AttendanceRepository {
         return try {
             val snapshot = attendanceCollection
                 .whereEqualTo("studentId", studentId)
-                .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                // REMOVED: .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
+
+            // Sort manually in code instead
             val attendance = snapshot.toObjects(Attendance::class.java)
+                .sortedByDescending { it.date.seconds }
+
             Result.success(attendance)
         } catch (e: Exception) {
             Result.failure(e)

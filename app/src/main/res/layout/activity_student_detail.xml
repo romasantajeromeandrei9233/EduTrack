@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_main">
 
-    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -59,7 +58,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Student Info Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,14 +94,63 @@
                         android:layout_height="wrap_content"
                         android:text="Parent: Not Linked"
                         android:textSize="14sp"
+                        android:textStyle="bold"
                         android:textColor="@color/text_secondary"
                         android:layout_marginTop="8dp" />
+
+                    <View
+                        android:id="@+id/dividerParent"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvParentSectionHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Parent Information"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvParentName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Name: N/A"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvParentPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phone: N/A"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvParentAddress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Address: N/A"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Invitation Code Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -126,7 +173,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:gravity="center">
 
                     <TextView
                         android:id="@+id/tvCodeStatus"
@@ -152,7 +200,7 @@
                         android:id="@+id/tvCodeExpiry"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Expires in 24 hours"
+                        android:text="Expires in 12 hours"
                         android:textSize="12sp"
                         android:textColor="@color/text_tertiary"
                         android:layout_marginTop="8dp"
@@ -171,6 +219,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
+                app:backgroundTint="@color/primary"
                 style="@style/Widget.Material3.Button" />
 
             <com.google.android.material.button.MaterialButton

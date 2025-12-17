@@ -1,5 +1,8 @@
 package com.example.edutrack.ui.teacher
 
+
+
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
@@ -27,7 +30,6 @@ class TeacherDashboardActivity : AppCompatActivity() {
 
     private val viewModel: TeacherDashboardViewModel by viewModels()
     private lateinit var classAdapter: ClassAdapter
-
     private lateinit var tvTeacherName: TextView
     private lateinit var tvClassCount: TextView
     private lateinit var tvStudentCount: TextView
@@ -99,10 +101,16 @@ class TeacherDashboardActivity : AppCompatActivity() {
         checkPendingSyncs()
     }
 
+
+
+
     private fun checkPendingSyncs() {
         CoroutineScope(Dispatchers.IO).launch {
             val attendanceRepository = AttendanceRepository()
             val result = attendanceRepository.getUnsyncedCount()
+
+
+
 
             result.fold(
                 onSuccess = { count ->
@@ -115,6 +123,9 @@ class TeacherDashboardActivity : AppCompatActivity() {
                             ).show()
                         }
 
+
+
+
                         // Trigger sync if online
                         if (OfflineAttendanceManager.isOnline(this@TeacherDashboardActivity)) {
                             OfflineAttendanceManager.scheduleSyncWork(this@TeacherDashboardActivity)
@@ -126,8 +137,14 @@ class TeacherDashboardActivity : AppCompatActivity() {
         }
     }
 
+
+
+
     private fun showAddClassDialog() {
         val options = arrayOf("Create New Class", "Add Sample Data")
+
+
+
 
         AlertDialog.Builder(this)
             .setTitle("Add Class")
@@ -140,9 +157,15 @@ class TeacherDashboardActivity : AppCompatActivity() {
             .show()
     }
 
+
+
+
     private fun showCreateClassDialog() {
         val input = android.widget.EditText(this)
         input.hint = "Class Name (e.g., Grade 5-A)"
+
+
+
 
         AlertDialog.Builder(this)
             .setTitle("Create New Class")
@@ -157,15 +180,24 @@ class TeacherDashboardActivity : AppCompatActivity() {
             .show()
     }
 
+
+
+
     private fun createClass(className: String) {
         CoroutineScope(Dispatchers.Main).launch {
             val teacherId = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+
+
+
 
             val classRoom = ClassRoom(
                 className = className,
                 teacherId = teacherId,
                 studentIds = emptyList()
             )
+
+
+
 
             val result = ClassRepository().createClass(classRoom)
             result.fold(
@@ -180,8 +212,14 @@ class TeacherDashboardActivity : AppCompatActivity() {
         }
     }
 
+
+
+
     private fun addSampleData() {
         val teacherId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+
+
 
         SampleDataCreator.createSampleData(teacherId) { success, message ->
             runOnUiThread {
@@ -193,12 +231,18 @@ class TeacherDashboardActivity : AppCompatActivity() {
         }
     }
 
+
+
+
     private fun openClassDetail(classRoom: ClassRoom) {
         val intent = Intent(this, ClassDetailActivity::class.java)
         intent.putExtra("CLASS_ID", classRoom.classId)
         intent.putExtra("CLASS_NAME", classRoom.className)
         startActivity(intent)
     }
+
+
+
 
     private fun signOut() {
         viewModel.signOut()

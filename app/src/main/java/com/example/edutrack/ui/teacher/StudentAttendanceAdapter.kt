@@ -1,5 +1,8 @@
+// File Path: app/src/main/java/com/example/edutrack/ui/teacher/StudentAttendanceAdapter.kt
+
 package com.example.edutrack.ui.teacher
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +24,10 @@ class StudentAttendanceAdapter(
     var onStudentLongClick: ((Student) -> Unit)? = null
 ) : RecyclerView.Adapter<StudentAttendanceAdapter.ViewHolder>() {
 
+    companion object {
+        private const val TAG = "StudentAttendanceAdapter"
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvStudentName: TextView = view.findViewById(R.id.tvStudentName)
         val statusIndicator: View = view.findViewById(R.id.statusIndicator)
@@ -29,6 +36,9 @@ class StudentAttendanceAdapter(
         val chipLate: Chip = view.findViewById(R.id.chipLate)
         val chipAbsent: Chip = view.findViewById(R.id.chipAbsent)
         val chipExcused: Chip = view.findViewById(R.id.chipExcused)
+
+        // Store the current position to prevent stale updates
+        var currentPosition: Int = -1
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -38,55 +48,153 @@ class StudentAttendanceAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = students[position]
-
-        holder.tvStudentName.text = item.student.name
-
-        // Update status indicator color
-        val statusColor = when (item.status) {
-            AttendanceStatus.PRESENT -> R.color.status_present
-            AttendanceStatus.LATE -> R.color.status_late
-            AttendanceStatus.ABSENT -> R.color.status_absent
-            AttendanceStatus.EXCUSED -> R.color.status_excused
-        }
-        holder.statusIndicator.setBackgroundResource(statusColor)
-
-        // Set selected chip based on status
-        when (item.status) {
-            AttendanceStatus.PRESENT -> holder.chipPresent.isChecked = true
-            AttendanceStatus.LATE -> holder.chipLate.isChecked = true
-            AttendanceStatus.ABSENT -> holder.chipAbsent.isChecked = true
-            AttendanceStatus.EXCUSED -> holder.chipExcused.isChecked = true
-        }
-
-        // Setup chip listeners
-        holder.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            if (checkedIds.isNotEmpty()) {
-                val newStatus = when (checkedIds[0]) {
-                    R.id.chipPresent -> AttendanceStatus.PRESENT
-                    R.id.chipLate -> AttendanceStatus.LATE
-                    R.id.chipAbsent -> AttendanceStatus.ABSENT
-                    R.id.chipExcused -> AttendanceStatus.EXCUSED
-                    else -> AttendanceStatus.PRESENT
-                }
-                item.status = newStatus
-                notifyItemChanged(position)
+        try {
+            // Validate position
+            if (position < 0 || position >= students.size) {
+                Log.e(TAG, "Invalid position: $position, size: ${students.size}")
+                return
             }
-        }
 
-        // Add long-click to open student detail
-        holder.itemView.setOnLongClickListener {
-            onStudentLongClick?.invoke(item.student)
-            true
+            val item = students[position]
+            holder.currentPosition = position
+
+            // Set student name
+            holder.tvStudentName.text = item.student.name
+
+            // Update status indicator color
+            val statusColor = when (item.status) {
+                AttendanceStatus.PRESENT -> R.color.status_present
+                AttendanceStatus.LATE -> R.color.status_late
+                AttendanceStatus.ABSENT -> R.color.status_absent
+                AttendanceStatus.EXCUSED -> R.color.status_excused
+            }
+            holder.statusIndicator.setBackgroundResource(statusColor)
+
+            // CRITICAL FIX: Remove previous listener before setting new state
+            holder.chipGroup.setOnCheckedStateChangeListener(null)
+
+            // Set selected chip based on current status
+            when (item.status) {
+                AttendanceStatus.PRESENT -> {
+                    holder.chipPresent.isChecked = true
+                    holder.chipLate.isChecked = false
+                    holder.chipAbsent.isChecked = false
+                    holder.chipExcused.isChecked = false
+                }
+                AttendanceStatus.LATE -> {
+                    holder.chipPresent.isChecked = false
+                    holder.chipLate.isChecked = true
+                    holder.chipAbsent.isChecked = false
+                    holder.chipExcused.isChecked = false
+                }
+                AttendanceStatus.ABSENT -> {
+                    holder.chipPresent.isChecked = false
+                    holder.chipLate.isChecked = false
+                    holder.chipAbsent.isChecked = true
+                    holder.chipExcused.isChecked = false
+                }
+                AttendanceStatus.EXCUSED -> {
+                    holder.chipPresent.isChecked = false
+                    holder.chipLate.isChecked = false
+                    holder.chipAbsent.isChecked = false
+                    holder.chipExcused.isChecked = true
+                }
+            }
+
+            // CRITICAL FIX: Set listener AFTER setting initial state
+            holder.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+                try {
+                    // Validate that we're still on the correct position
+                    val adapterPosition = holder.adapterPosition
+                    if (adapterPosition == RecyclerView.NO_POSITION ||
+                        adapterPosition >= students.size) {
+                        Log.w(TAG, "Invalid adapter position during chip change: $adapterPosition")
+                        return@setOnCheckedStateChangeListener
+                    }
+
+                    if (checkedIds.isNotEmpty()) {
+                        val newStatus = when (checkedIds[0]) {
+                            R.id.chipPresent -> AttendanceStatus.PRESENT
+                            R.id.chipLate -> AttendanceStatus.LATE
+                            R.id.chipAbsent -> AttendanceStatus.ABSENT
+                            R.id.chipExcused -> AttendanceStatus.EXCUSED
+                            else -> {
+                                Log.w(TAG, "Unknown chip ID: ${checkedIds[0]}")
+                                return@setOnCheckedStateChangeListener
+                            }
+                        }
+
+                        // Update the status in the data
+                        students[adapterPosition].status = newStatus
+
+                        // Update the status indicator color
+                        val newStatusColor = when (newStatus) {
+                            AttendanceStatus.PRESENT -> R.color.status_present
+                            AttendanceStatus.LATE -> R.color.status_late
+                            AttendanceStatus.ABSENT -> R.color.status_absent
+                            AttendanceStatus.EXCUSED -> R.color.status_excused
+                        }
+                        holder.statusIndicator.setBackgroundResource(newStatusColor)
+
+                        Log.d(TAG, "Status updated for ${students[adapterPosition].student.name}: $newStatus")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error handling chip selection: ${e.message}", e)
+                }
+            }
+
+            // Long-click to open student detail
+            holder.itemView.setOnLongClickListener {
+                try {
+                    val adapterPosition = holder.adapterPosition
+                    if (adapterPosition != RecyclerView.NO_POSITION &&
+                        adapterPosition < students.size) {
+                        onStudentLongClick?.invoke(students[adapterPosition].student)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error handling long click: ${e.message}", e)
+                }
+                true
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error binding view holder at position $position: ${e.message}", e)
         }
     }
 
     override fun getItemCount(): Int = students.size
 
     fun updateStudents(newStudents: List<StudentAttendanceItem>) {
-        students = newStudents
-        notifyDataSetChanged()
+        try {
+            students = newStudents.toList() // Create a copy to prevent external modifications
+            notifyDataSetChanged()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating students: ${e.message}", e)
+        }
     }
 
-    fun getAttendanceData(): List<StudentAttendanceItem> = students
+    fun getAttendanceData(): List<StudentAttendanceItem> {
+        return try {
+            students.toList() // Return a copy to prevent external modifications
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting attendance data: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    override fun getItemId(position: Int): Long {
+        return try {
+            if (position >= 0 && position < students.size) {
+                students[position].student.studentId.hashCode().toLong()
+            } else {
+                RecyclerView.NO_ID
+            }
+        } catch (e: Exception) {
+            RecyclerView.NO_ID
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
 }

@@ -14,6 +14,7 @@ import com.example.edutrack.model.Attendance
 import com.example.edutrack.model.AttendanceStatus
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.AttendanceRepository
+import com.example.edutrack.repository.ClassRepository
 import com.example.edutrack.repository.StudentRepository
 import com.example.edutrack.utils.FCMNotificationSender
 import com.example.edutrack.utils.AttendanceUtils
@@ -518,7 +519,11 @@ class ClassDetailActivity : AppCompatActivity() {
                 }
 
                 result.fold(
-                    onSuccess = {
+                    onSuccess = { studentId ->
+                        withContext(Dispatchers.IO) {
+                            val classRepo = ClassRepository()
+                            classRepo.addStudentToClass(classId, studentId)
+                        }
                         Toast.makeText(
                             this@ClassDetailActivity,
                             "Student added!",

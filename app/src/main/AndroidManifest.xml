@@ -37,21 +37,12 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.teacher.ExcuseLettersActivity"
-            android:exported="false" />
-
-        <!-- ADD THIS - Teacher Profile -->
-        <activity
             android:name=".ui.teacher.TeacherProfileActivity"
             android:exported="false" />
 
         <!-- Parent Activities -->
         <activity
             android:name=".ui.parent.ParentDashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.parent.ExcuseLetterActivity"
             android:exported="false" />
 
         <activity
@@ -64,7 +55,6 @@
             </intent-filter>
         </activity>
 
-        <!-- ADD THIS - Parent Profile -->
         <activity
             android:name=".ui.parent.ParentProfileActivity"
             android:exported="false" />
@@ -72,14 +62,6 @@
         <!-- FCM Service -->
         <service
             android:name=".firebase.MessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="com.example.edutrack.firebase.MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

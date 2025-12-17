@@ -14,7 +14,6 @@ import com.example.edutrack.model.Attendance
 import com.example.edutrack.model.AttendanceStatus
 import com.example.edutrack.model.Student
 import com.example.edutrack.repository.AttendanceRepository
-import com.example.edutrack.repository.ClassRepository
 import com.example.edutrack.repository.StudentRepository
 import com.example.edutrack.utils.FCMNotificationSender
 import com.example.edutrack.utils.AttendanceUtils
@@ -23,8 +22,12 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
@@ -37,6 +40,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
     private lateinit var classId: String
     private lateinit var className: String
+
     private lateinit var tvClassName: TextView
     private lateinit var tvDate: TextView
     private lateinit var tvPresentCount: TextView
@@ -48,6 +52,10 @@ class ClassDetailActivity : AppCompatActivity() {
     private lateinit var studentAdapter: StudentAttendanceAdapter
     private val studentRepository = StudentRepository()
     private val attendanceRepository = AttendanceRepository()
+    private val db = FirebaseFirestore.getInstance()
+
+    // Real-time listener for attendance changes
+    private var attendanceListener: ListenerRegistration? = null
 
     // Use a dedicated scope for this activity
     private val activityScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -74,6 +82,7 @@ class ClassDetailActivity : AppCompatActivity() {
             setupRecyclerView()
             setupClickListeners()
             loadStudents()
+            setupRealtimeAttendanceListener()
 
         } catch (e: Exception) {
             Log.e(TAG, "Error in onCreate: ${e.message}", e)
@@ -167,6 +176,10 @@ class ClassDetailActivity : AppCompatActivity() {
                                 StudentAttendanceItem(student, AttendanceStatus.PRESENT)
                             }
                             studentAdapter.updateStudents(attendanceItems)
+
+                            // Load today's attendance after loading students
+                            loadTodayAttendance(students)
+
                             updateAttendanceStats()
                         } catch (e: Exception) {
                             Log.e(TAG, "Error updating UI with students: ${e.message}", e)
@@ -185,6 +198,98 @@ class ClassDetailActivity : AppCompatActivity() {
                 Log.e(TAG, "Error in loadStudents: ${e.message}", e)
             }
         }
+    }
+
+    /**
+     * Load today's attendance records to pre-fill status
+     */
+    private fun loadTodayAttendance(students: List<Student>) {
+        activityScope.launch {
+            try {
+                val today = Date()
+                val startOfDay = getStartOfDay(today)
+                val endOfDay = getEndOfDay(today)
+
+                val attendanceSnapshot = db.collection("attendance")
+                    .whereGreaterThanOrEqualTo("date", Timestamp(startOfDay))
+                    .whereLessThan("date", Timestamp(endOfDay))
+                    .get()
+                    .await()
+
+                val attendanceMap = attendanceSnapshot.documents.mapNotNull { doc ->
+                    val attendance = doc.toObject(Attendance::class.java)
+                    attendance?.let { it.studentId to it.status }
+                }.toMap()
+
+                Log.d(TAG, "📊 Loaded ${attendanceMap.size} attendance records for today")
+
+                // Update adapter with today's attendance
+                val updatedItems = students.map { student ->
+                    val status = attendanceMap[student.studentId] ?: AttendanceStatus.PRESENT
+                    StudentAttendanceItem(student, status)
+                }
+
+                studentAdapter.updateStudents(updatedItems)
+                updateAttendanceStats()
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading today's attendance: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Setup real-time listener for attendance changes (e.g., parent excuses)
+     */
+    private fun setupRealtimeAttendanceListener() {
+        Log.d(TAG, "🔄 Setting up real-time attendance listener")
+
+        val today = Date()
+        val startOfDay = getStartOfDay(today)
+        val endOfDay = getEndOfDay(today)
+
+        attendanceListener = db.collection("attendance")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "❌ Attendance listener failed: ${error.message}", error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && !snapshot.isEmpty) {
+                    Log.d(TAG, "🔔 Real-time attendance update received: ${snapshot.size()} records")
+
+                    val today = Date()
+                    val startOfDay = getStartOfDay(today)
+                    val endOfDay = getEndOfDay(today)
+
+                    // Filter by date in code to avoid index requirement
+                    val todayAttendance = snapshot.documents.filter { doc ->
+                        val docDate = doc.getTimestamp("date")
+                        docDate != null &&
+                                docDate.seconds >= Timestamp(startOfDay).seconds &&
+                                docDate.seconds < Timestamp(endOfDay).seconds
+                    }
+
+                    // Create map of student attendance
+                    val attendanceMap = todayAttendance.mapNotNull { doc ->
+                        val attendance = doc.toObject(Attendance::class.java)
+                        attendance?.let { it.studentId to it.status }
+                    }.toMap()
+
+                    // Update adapter with new statuses
+                    val currentItems = studentAdapter.getAttendanceData()
+                    val updatedItems = currentItems.map { item ->
+                        val newStatus = attendanceMap[item.student.studentId] ?: item.status
+                        if (newStatus != item.status) {
+                            Log.d(TAG, "✏️ Updating ${item.student.name}: ${item.status} → $newStatus")
+                        }
+                        item.copy(status = newStatus)
+                    }
+
+                    studentAdapter.updateStudents(updatedItems)
+                    updateAttendanceStats()
+                }
+            }
     }
 
     private fun updateAttendanceStats() {
@@ -413,12 +518,7 @@ class ClassDetailActivity : AppCompatActivity() {
                 }
 
                 result.fold(
-                    onSuccess = { studentId ->
-                        withContext(Dispatchers.IO) {
-                            val classRepo = ClassRepository()
-                            classRepo.addStudentToClass(classId, studentId)
-                        }
-
+                    onSuccess = {
                         Toast.makeText(
                             this@ClassDetailActivity,
                             "Student added!",
@@ -446,12 +546,34 @@ class ClassDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun getStartOfDay(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.time
+    }
+
+    private fun getEndOfDay(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        return calendar.time
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         try {
+            attendanceListener?.remove()
             activityScope.cancel()
+            Log.d(TAG, "🧹 Cleaned up listeners and coroutines")
         } catch (e: Exception) {
-            Log.e(TAG, "Error canceling coroutine scope: ${e.message}", e)
+            Log.e(TAG, "Error cleaning up: ${e.message}", e)
         }
     }
 }

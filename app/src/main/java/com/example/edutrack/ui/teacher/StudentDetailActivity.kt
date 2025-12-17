@@ -3,7 +3,6 @@ package com.example.edutrack.ui.teacher
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -28,7 +27,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class StudentDetailActivity : AppCompatActivity() {
-
     companion object {
         private const val TAG = "StudentDetailActivity"
     }
@@ -40,17 +38,15 @@ class StudentDetailActivity : AppCompatActivity() {
     private lateinit var tvStudentName: TextView
     private lateinit var tvGrade: TextView
     private lateinit var tvParentStatus: TextView
-
-    // FIX: Added parent detail views
     private lateinit var tvParentName: TextView
     private lateinit var tvParentPhone: TextView
     private lateinit var tvParentAddress: TextView
-
     private lateinit var tvCodeStatus: TextView
     private lateinit var tvCode: TextView
     private lateinit var tvCodeExpiry: TextView
     private lateinit var btnGenerateCode: MaterialButton
     private lateinit var btnCopyCode: MaterialButton
+    // REMOVED: private lateinit var btnViewExcuses: MaterialButton
 
     private val studentRepository = StudentRepository()
     private val invitationCodeRepository = InvitationCodeRepository()
@@ -59,7 +55,6 @@ class StudentDetailActivity : AppCompatActivity() {
 
     private var currentCode: InvitationCode? = null
     private var isLoading = false
-    private lateinit var btnViewExcuses: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +64,8 @@ class StudentDetailActivity : AppCompatActivity() {
 
             studentId = intent.getStringExtra("STUDENT_ID") ?: run {
                 Log.e(TAG, "Missing STUDENT_ID in intent")
-                Toast.makeText(this, "Error: Missing student information", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error: Missing student information", Toast.LENGTH_SHORT)
+                    .show()
                 finish()
                 return
             }
@@ -102,7 +98,7 @@ class StudentDetailActivity : AppCompatActivity() {
             tvCodeExpiry = findViewById(R.id.tvCodeExpiry)
             btnGenerateCode = findViewById(R.id.btnGenerateCode)
             btnCopyCode = findViewById(R.id.btnCopyCode)
-            btnViewExcuses = findViewById(R.id.btnViewExcuses)
+            // REMOVED: btnViewExcuses = findViewById(R.id.btnViewExcuses)
 
             tvStudentName.text = studentName
         } catch (e: Exception) {
@@ -127,9 +123,7 @@ class StudentDetailActivity : AppCompatActivity() {
                 copyCodeToClipboard()
             }
 
-            btnViewExcuses.setOnClickListener {
-                openExcuseLetters()
-            }
+            // REMOVED: btnViewExcuses.setOnClickListener block
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up click listeners: ${e.message}", e)
         }
@@ -151,8 +145,6 @@ class StudentDetailActivity : AppCompatActivity() {
                             if (student.parentId.isNotBlank()) {
                                 tvParentStatus.text = "Parent: Linked ✓"
                                 tvParentStatus.setTextColor(getColor(R.color.status_present))
-
-                                // FIX: Load parent details
                                 loadParentDetails(student.parentId)
                             } else {
                                 tvParentStatus.text = "Parent: Not Linked"
@@ -180,7 +172,6 @@ class StudentDetailActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: Enhanced parent details loading with better error handling
     private fun loadParentDetails(parentId: String) {
         activityScope.launch {
             try {
@@ -197,11 +188,10 @@ class StudentDetailActivity : AppCompatActivity() {
                                 val parentPhone = parentDoc.getString("phoneNumber") ?: "N/A"
                                 val parentAddress = parentDoc.getString("address") ?: "N/A"
 
-                                // Show divider and section header
                                 findViewById<View>(R.id.dividerParent)?.visibility = View.VISIBLE
-                                findViewById<TextView>(R.id.tvParentSectionHeader)?.visibility = View.VISIBLE
+                                findViewById<TextView>(R.id.tvParentSectionHeader)?.visibility =
+                                    View.VISIBLE
 
-                                // Update and show parent details
                                 tvParentName.text = "Name: $parentName"
                                 tvParentPhone.text = "Phone: $parentPhone"
                                 tvParentAddress.text = "Address: $parentAddress"
@@ -250,7 +240,6 @@ class StudentDetailActivity : AppCompatActivity() {
                 result.fold(
                     onSuccess = { codes ->
                         try {
-                            // Find active (unused, not expired) code
                             val now = System.currentTimeMillis() / 1000
                             val activeCode = codes.firstOrNull { code ->
                                 !code.isUsed && code.expiresAt.seconds > now
@@ -267,7 +256,11 @@ class StudentDetailActivity : AppCompatActivity() {
                         }
                     },
                     onFailure = { exception ->
-                        Log.e(TAG, "Failed to load invitation codes: ${exception.message}", exception)
+                        Log.e(
+                            TAG,
+                            "Failed to load invitation codes: ${exception.message}",
+                            exception
+                        )
                         showNoCodeState()
                     }
                 )
@@ -307,7 +300,6 @@ class StudentDetailActivity : AppCompatActivity() {
                 result.fold(
                     onSuccess = { code ->
                         displayCode(code)
-                        // FIX: Updated message to reflect 12 hours
                         Toast.makeText(
                             this@StudentDetailActivity,
                             "Code generated! Valid for 12 hours.",
@@ -337,13 +329,6 @@ class StudentDetailActivity : AppCompatActivity() {
                 btnGenerateCode.isEnabled = true
             }
         }
-    }
-
-    private fun openExcuseLetters() {
-        val intent = Intent(this, ExcuseLettersActivity::class.java)
-        intent.putExtra("STUDENT_ID", studentId)
-        intent.putExtra("STUDENT_NAME", studentName)
-        startActivity(intent)
     }
 
     private fun displayCode(code: InvitationCode) {
@@ -398,6 +383,12 @@ class StudentDetailActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadStudentData()
+        loadInvitationCode()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         try {
@@ -405,12 +396,5 @@ class StudentDetailActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error canceling coroutine scope: ${e.message}", e)
         }
-    }
-
-    // FIX: Reload data when returning to this activity
-    override fun onResume() {
-        super.onResume()
-        loadStudentData()
-        loadInvitationCode()
     }
 }

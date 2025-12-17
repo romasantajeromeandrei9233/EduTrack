@@ -103,7 +103,6 @@ class TeacherDashboardViewModel : ViewModel() {
             .whereEqualTo("teacherId", currentUser.uid)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    _error.value = "Failed to listen for class updates: ${error.message}"
                     return@addSnapshotListener
                 }
 

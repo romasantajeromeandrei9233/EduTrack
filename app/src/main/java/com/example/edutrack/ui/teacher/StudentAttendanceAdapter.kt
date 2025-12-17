@@ -37,8 +37,8 @@ class StudentAttendanceAdapter(
         val chipAbsent: Chip = view.findViewById(R.id.chipAbsent)
         val chipExcused: Chip = view.findViewById(R.id.chipExcused)
 
-        // Store the current position to prevent stale updates
-        var currentPosition: Int = -1
+        // ✅ FIX: Track if we're programmatically updating to prevent listener firing
+        var isUpdatingProgrammatically = false
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -56,10 +56,12 @@ class StudentAttendanceAdapter(
             }
 
             val item = students[position]
-            holder.currentPosition = position
 
             // Set student name
             holder.tvStudentName.text = item.student.name
+
+            // ✅ FIX: Set flag BEFORE updating chips
+            holder.isUpdatingProgrammatically = true
 
             // Update status indicator color
             val statusColor = when (item.status) {
@@ -70,41 +72,34 @@ class StudentAttendanceAdapter(
             }
             holder.statusIndicator.setBackgroundResource(statusColor)
 
-            // CRITICAL FIX: Remove previous listener before setting new state
+            // ✅ FIX: Remove listener BEFORE setting chip states
             holder.chipGroup.setOnCheckedStateChangeListener(null)
 
-            // Set selected chip based on current status
+            // ✅ FIX: Clear all selections first
+            holder.chipGroup.clearCheck()
+
+            // ✅ FIX: Set the correct chip based on current status
             when (item.status) {
-                AttendanceStatus.PRESENT -> {
-                    holder.chipPresent.isChecked = true
-                    holder.chipLate.isChecked = false
-                    holder.chipAbsent.isChecked = false
-                    holder.chipExcused.isChecked = false
-                }
-                AttendanceStatus.LATE -> {
-                    holder.chipPresent.isChecked = false
-                    holder.chipLate.isChecked = true
-                    holder.chipAbsent.isChecked = false
-                    holder.chipExcused.isChecked = false
-                }
-                AttendanceStatus.ABSENT -> {
-                    holder.chipPresent.isChecked = false
-                    holder.chipLate.isChecked = false
-                    holder.chipAbsent.isChecked = true
-                    holder.chipExcused.isChecked = false
-                }
-                AttendanceStatus.EXCUSED -> {
-                    holder.chipPresent.isChecked = false
-                    holder.chipLate.isChecked = false
-                    holder.chipAbsent.isChecked = false
-                    holder.chipExcused.isChecked = true
-                }
+                AttendanceStatus.PRESENT -> holder.chipPresent.isChecked = true
+                AttendanceStatus.LATE -> holder.chipLate.isChecked = true
+                AttendanceStatus.ABSENT -> holder.chipAbsent.isChecked = true
+                AttendanceStatus.EXCUSED -> holder.chipExcused.isChecked = true
             }
 
-            // CRITICAL FIX: Set listener AFTER setting initial state
+            // ✅ FIX: Small delay to ensure UI is updated, then reset flag
+            holder.itemView.post {
+                holder.isUpdatingProgrammatically = false
+            }
+
+            // ✅ FIX: Set listener AFTER chip states are set
             holder.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
                 try {
-                    // Validate that we're still on the correct position
+                    // ✅ FIX: Ignore listener if we're updating programmatically
+                    if (holder.isUpdatingProgrammatically) {
+                        return@setOnCheckedStateChangeListener
+                    }
+
+                    // Validate adapter position
                     val adapterPosition = holder.adapterPosition
                     if (adapterPosition == RecyclerView.NO_POSITION ||
                         adapterPosition >= students.size) {
@@ -136,7 +131,7 @@ class StudentAttendanceAdapter(
                         }
                         holder.statusIndicator.setBackgroundResource(newStatusColor)
 
-                        Log.d(TAG, "Status updated for ${students[adapterPosition].student.name}: $newStatus")
+                        Log.d(TAG, "✅ Status updated for ${students[adapterPosition].student.name}: $newStatus")
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error handling chip selection: ${e.message}", e)

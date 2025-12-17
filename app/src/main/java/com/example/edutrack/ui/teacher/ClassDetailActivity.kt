@@ -58,10 +58,7 @@ class ClassDetailActivity : AppCompatActivity() {
     // Real-time listener for attendance changes
     private var attendanceListener: ListenerRegistration? = null
 
-    // Use a dedicated scope for this activity
     private val activityScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-
-    // Prevent multiple simultaneous saves
     private val isSaving = AtomicBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +101,6 @@ class ClassDetailActivity : AppCompatActivity() {
 
             tvClassName.text = className
 
-            // Set current date
             val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
             tvDate.text = dateFormat.format(Date())
         } catch (e: Exception) {
@@ -141,8 +137,8 @@ class ClassDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Reload student data when returning from student detail
-        loadStudents()
+        // ✅ FIX: Force refresh attendance data when returning to this screen
+        refreshAttendanceData()
     }
 
     private fun setupClickListeners() {
@@ -202,6 +198,24 @@ class ClassDetailActivity : AppCompatActivity() {
     }
 
     /**
+     * ✅ FIX: New method to refresh attendance data
+     */
+    private fun refreshAttendanceData() {
+        activityScope.launch {
+            try {
+                val currentItems = studentAdapter.getAttendanceData()
+                if (currentItems.isNotEmpty()) {
+                    val students = currentItems.map { it.student }
+                    loadTodayAttendance(students)
+                    Log.d(TAG, "🔄 Refreshed attendance data for ${students.size} students")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing attendance data: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
      * Load today's attendance records to pre-fill status
      */
     private fun loadTodayAttendance(students: List<Student>) {
@@ -211,6 +225,7 @@ class ClassDetailActivity : AppCompatActivity() {
                 val startOfDay = getStartOfDay(today)
                 val endOfDay = getEndOfDay(today)
 
+                // ✅ FIX: Force a fresh read from server to get latest data
                 val attendanceSnapshot = db.collection("attendance")
                     .whereGreaterThanOrEqualTo("date", Timestamp(startOfDay))
                     .whereLessThan("date", Timestamp(endOfDay))
@@ -230,8 +245,11 @@ class ClassDetailActivity : AppCompatActivity() {
                     StudentAttendanceItem(student, status)
                 }
 
-                studentAdapter.updateStudents(updatedItems)
-                updateAttendanceStats()
+                // ✅ FIX: Update on main thread
+                withContext(Dispatchers.Main) {
+                    studentAdapter.updateStudents(updatedItems)
+                    updateAttendanceStats()
+                }
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading today's attendance: ${e.message}", e)
@@ -258,10 +276,6 @@ class ClassDetailActivity : AppCompatActivity() {
 
                 if (snapshot != null && !snapshot.isEmpty) {
                     Log.d(TAG, "🔔 Real-time attendance update received: ${snapshot.size()} records")
-
-                    val today = Date()
-                    val startOfDay = getStartOfDay(today)
-                    val endOfDay = getEndOfDay(today)
 
                     // Filter by date in code to avoid index requirement
                     val todayAttendance = snapshot.documents.filter { doc ->
@@ -311,7 +325,6 @@ class ClassDetailActivity : AppCompatActivity() {
     }
 
     private fun saveAttendance() {
-        // Prevent multiple simultaneous saves
         if (!isSaving.compareAndSet(false, true)) {
             Toast.makeText(this, "Please wait, saving in progress...", Toast.LENGTH_SHORT).show()
             return
@@ -339,7 +352,6 @@ class ClassDetailActivity : AppCompatActivity() {
             return
         }
 
-        // Check online status
         val isOnline = try {
             OfflineAttendanceManager.isOnline(this)
         } catch (e: Exception) {
@@ -347,7 +359,6 @@ class ClassDetailActivity : AppCompatActivity() {
             false
         }
 
-        // Update UI
         runOnUiThread {
             btnSaveAttendance.isEnabled = false
             btnSaveAttendance.text = if (isOnline) "Saving..." else "Saving Offline..."
@@ -355,7 +366,6 @@ class ClassDetailActivity : AppCompatActivity() {
 
         activityScope.launch {
             try {
-                // Create attendance list with proper error handling
                 val attendanceList = attendanceData.mapNotNull { item ->
                     try {
                         Attendance(
@@ -385,16 +395,18 @@ class ClassDetailActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Save to Firestore with timeout
                 val result = withContext(Dispatchers.IO) {
-                    withTimeoutOrNull(30000) { // 30 second timeout
+                    withTimeoutOrNull(30000) {
                         attendanceRepository.markAttendanceBatchOffline(attendanceList, isOnline)
                     } ?: Result.failure(Exception("Save operation timed out"))
                 }
 
                 result.fold(
                     onSuccess = {
-                        // Send notifications if online (don't block UI)
+                        // ✅ FIX: Refresh data immediately after successful save
+                        delay(500) // Small delay to ensure Firestore write completes
+                        refreshAttendanceData()
+
                         if (isOnline) {
                             launch(Dispatchers.IO) {
                                 attendanceData.forEach { item ->
@@ -408,12 +420,10 @@ class ClassDetailActivity : AppCompatActivity() {
                                         )
                                     } catch (e: Exception) {
                                         Log.e(TAG, "Failed to send notification for ${item.student.name}: ${e.message}", e)
-                                        // Don't fail the whole operation if notification fails
                                     }
                                 }
                             }
                         } else {
-                            // Schedule sync for later
                             try {
                                 OfflineAttendanceManager.scheduleSyncWork(this@ClassDetailActivity)
                             } catch (e: Exception) {
@@ -426,7 +436,7 @@ class ClassDetailActivity : AppCompatActivity() {
                             btnSaveAttendance.text = "Save Attendance"
 
                             val message = if (isOnline) {
-                                "Attendance saved & notifications sent!"
+                                "✅ Attendance saved & notifications sent!"
                             } else {
                                 "Attendance saved offline. Will sync when online."
                             }
@@ -436,7 +446,6 @@ class ClassDetailActivity : AppCompatActivity() {
                                 message,
                                 Toast.LENGTH_LONG
                             ).show()
-                            updateAttendanceStats()
                         }
                     },
                     onFailure = { exception ->
